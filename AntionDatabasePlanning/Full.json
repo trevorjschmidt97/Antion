@@ -1,0 +1,77 @@
+{
+    "BlockChain": {
+        "forEachBlockIndex//orHash": {
+            "prevHash": "lksdjfslkdjf",
+            "timeStamp": "2021-12-21 14:27:26:0000",
+            "merkleRoot": "ldkjflakjdf",
+            "minerPublickey": "alskdjflakdsjf",
+            "difficulty": 4,
+            "nonce": 0,
+            "hash": "dlkfjlakdjflkj"
+        }
+    },
+    "Users": {
+        "forEachPublicKey": {
+            "name": "Trevor Schmidt",
+            "publicKey": "trev01984",
+            "profilePicUrl": "http://...",
+            "aquantances": {
+                "forEachAquantancePublicKey": {
+                    "name": "Sarah Schmidt",
+                    "publicKey": "sarah8008135",
+                    "profilePicUrl": "http://...",
+                    "numSharedTransactions": 3,
+                    "isFriend": true
+                }
+            },
+            "transactions": {
+                "forEachSelfAndFriendPublicKey": {
+                    "forEachTransactionHash": {
+                        "timeStamp": "2021-12-21 14:27:26:0000"
+                    }
+                }
+            },
+            "requestedTransactions": {
+                "forEachSelfAndFriendPublicKey": {
+                    "forEachTransactionHash": {
+                        "Transaction Info": true,
+                        "Limit to arbitrary 10 pending": true,
+                        "Transactions Per User": true
+                    }
+                }
+            }
+        }
+    },
+    "Transactions": {
+        "forEachTransactionHash": {
+            "fromPublicKey": "ldkjflakjsdf",
+            "toPublicKey": "ldkfjlkjoedlk",
+            "amount": 420.69,
+            "comments": "Thanks for the pizza",
+            "signature": "lakjsdflkjkjdfkjdkfjlkasdjf",
+            "type": "pending",
+            "blockNumber": -1,
+            "merkleStuff": "",
+            "fromName": "Trevor Schmidt",
+            "fromProfilePicUrl": "http://...",
+            "toName": "Sarah Schmidt",
+            "toProfilePicUrl": "http://...",
+            "likes": {
+                "forEachLikePublicKey": "2021-12-21 14:27:26:0000"
+            },
+            "replies": {
+                "forEachRandomId": {
+                    "publicKey": "ldkjflakjsdf",
+                    "name": "Trevor Schmidt",
+                    "reply": "Thanks!",
+                    "timeStamp": "2021-12-21 14:27:26:0000"
+                }
+            }
+        }
+    },
+    "PhoneNumbers": {
+        "+18018568309": "2021-12-21 14:27:26:0000",
+        "+18016916684": "2021-12-22 16:22:58:0000"
+    }
+
+}

@@ -1,0 +1,13 @@
+{
+    "BlockChain": {
+        "forEachBlockIndex//orHash": {
+            "prevHash": "lksdjfslkdjf",
+            "timeStamp": "2021-12-21 14:27:26:0000",
+            "merkleRoot": "ldkjflakjdf",
+            "minerPublickey": "alskdjflakdsjf",
+            "difficulty": 4,
+            "nonce": 0,
+            "hash": "dlkfjlakdjflkj"
+        }
+    }
+}

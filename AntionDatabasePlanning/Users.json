@@ -1,0 +1,32 @@
+{"Users": {
+    "forEachPublicKey": {
+        "name": "Trevor Schmidt",
+        "publicKey": "trev01984",
+        "profilePicUrl": "http://...",
+        "acquaintances": {
+            "forEachAquantancePublicKey": {
+                "name": "Sarah Schmidt",
+                "publicKey": "sarah8008135",
+                "profilePicUrl": "http://...",
+                "numSharedTransactions": 3,
+                "isFriend": true
+            }
+        },
+        "transactions": {
+            "forEachSelfAndFriendPublicKey": {
+                "forEachTransactionHash": {
+                    "timeStamp": "2021-12-21 14:27:26:0000"
+                }
+            }
+        },
+        "requestedTransactions": {
+            "forEachSelfAndFriendPublicKey": {
+                "forEachTransactionHash": {
+                    "Transaction Info": true,
+                    "Limit to arbitrary 10 pending": true,
+                    "Transactions Per User": true
+                }
+            }
+        }
+    }
+}}

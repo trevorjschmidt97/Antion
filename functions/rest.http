@@ -1,0 +1,11 @@
+
+GET https://us-central1-antion-2a523.cloudfunctions.net/api
+
+###
+POST https://us-central1-antion-2a523.cloudfunctions.net/api
+Content-Type: application/application/json
+
+{
+    "name": "Trevor",
+    "college": "BYU"
+}
