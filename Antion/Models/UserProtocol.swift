@@ -7,15 +7,15 @@
 
 import Foundation
 
-protocol UserProtocol: Codable {
-    
-    var publicKey: String { get set }
-    var name: String { get set }
-    var profilePicUrl: String { get set }
-    
-}
+//protocol UserProtocol: Codable {
+//    
+//    var publicKey: String { get set }
+//    var name: String { get set }
+//    var profilePicUrl: String { get set }
+//    
+//}
 
-struct OtherUser: UserProtocol, Identifiable {
+struct OtherUser: Codable, Identifiable {
     var publicKey: String
     var name: String
     var profilePicUrl: String

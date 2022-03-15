@@ -7,20 +7,186 @@
 
 import Foundation
 import LocalAuthentication
+import SwiftUI
 
 class AuthViewModel: ObservableObject {
     
     @Published var phoneNumberInput = "+1"
-    @Published var privateKeyInput = ""
+    @Published var signInPrivateKeyInput = ""
     @Published var otcInput = ""
     
-    @Published var isShowingVerificationScreen = false
+    @Published var showPhoneVerificationScreen = false
     @Published var isShowingWalletScreen = false
+    
+    @Published var publicKey = ""
+    @Published var privateKey = ""
+    
+    // try to log in with faceId/touchId if possible
+    func onAppear() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.requestBiometricUnlock { result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success(let privateKey):
+                        AppViewModel.shared.privateKey = privateKey
+                    case .failure(let error):
+                        print(error.localizedDescription)
+                    }
+                }
+            }
+        }
+    }
+    
+    // In Sign In
+    @Published var showInvalidPrivateKey = false
+    func signInButtonPressed() {
+        if let privateKey = CryptoService.generatePrivateKeyString(fromString: signInPrivateKeyInput) {
+            savePrivateKeyWithNoFree(privateKey: privateKey)
+        } else {
+            showInvalidPrivateKey = true
+        }
+    }
+    
+    @Published var errorSendingPhoneAuthCode = false
+    func initiatePhoneAuth() {
+        // Send auth code
+        FirebaseAuthService.shared.startAuth(phoneNumber: phoneNumberInput) { [weak self] success in
+            if success {
+                self?.showPhoneVerificationScreen.toggle()
+            } else {
+                self?.errorSendingPhoneAuthCode = true
+            }
+        }
+    }
+    
+    @Published var phoneNumberHasBeenUsed: Bool? = nil
+    @Published var count = 0
+    func checkPhoneNumber() {
+        FirebaseFirestoreService.shared.phoneHasBeenUsed(phoneNumber: phoneNumberInput) { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let used):
+                self.phoneNumberHasBeenUsed = used
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    @Published var showReturningPhoneView = false
+    @Published var errorInOtcSubmission = false
+    func otcSubmitButtonPressed() {
+        // Make sure we know if they've used the phone number yet
+        // the button is deactivated until we know, so this shouldn't be a problem
+        guard let phoneNumberHasBeenUsed = phoneNumberHasBeenUsed else {
+            return
+        }
+        
+        FirebaseAuthService.shared.verifyCode(smsCode: otcInput) { [weak self] success in
+            if success { // Correct phone code
+                if phoneNumberHasBeenUsed { // If it's been used
+                    self?.showReturningPhoneView = true
+                } else { // If it hasn't been used, create a new account for them
+                    // Store it in the db
+                    // Create a free transaction for them
+                    let (sk, pk) = CryptoService.generateKeyPair()
+                    self?.publicKey = pk
+                    self?.privateKey = sk
+                    self?.isShowingWalletScreen.toggle()
+                }
+            } else { // Incorrect phone code
+                self?.errorInOtcSubmission = true
+            }
+        }
+    }
+    
+    @Published var saveUserLoading = false
+    @Published var saveSearchUserLoading = false
+    func createNewUser(privateKey: String) {
+        guard let publicKey = CryptoService.getPublicKeyString(forPrivateKeyString: privateKey) else { return }
+        let user = User(publicKey: publicKey, phone: phoneNumberInput)
+        let searchUser = SearchUser.searchUser(fromUser: user)
+
+        saveUserLoading = true
+        saveSearchUserLoading = true
+        
+        FirebaseFirestoreService.shared.storeNewUser(user: user) { [weak self] result in
+            guard let self = self else { return }
+            DispatchQueue.main.async {
+                switch result {
+                case .success():
+                    self.saveUserLoading = false
+                case .failure(_):
+                    printError()
+                }
+            }
+        }
+        FirebaseFirestoreService.shared.storeNewSearchUser(searchUser: searchUser) { [weak self] result in
+            guard let self = self else { return }
+            DispatchQueue.main.async {
+                switch result {
+                case .success():
+                    self.saveSearchUserLoading = false
+                case .failure(_):
+                    printError()
+                }
+            }
+        }
+    }
+    
+    @Published var finalLoading = false
+    func savePrivateKey(privateKey: String) {
+        guard let phoneNumberHasBeenUsed = phoneNumberHasBeenUsed else {
+            return
+        }
+        finalLoading = true
+        // Saving private key
+        let _ = KeychainStorage.savePrivateKey(privateKey)
+        AppViewModel.shared.privateKey = privateKey
+        
+        if phoneNumberHasBeenUsed {
+            savePrivateKeyWithNoFree(privateKey: privateKey)
+        } else {
+            // Save user
+            guard let publicKey = CryptoService.getPublicKeyString(forPrivateKeyString: privateKey) else {
+                return
+            }
+            let user = User(publicKey: publicKey, phone: phoneNumberInput)
+            print(user)
+        }
+        
+    }
+    
+    func savePrivateKeyWithNoFree(privateKey: String) {
+        let _ = KeychainStorage.savePrivateKey(privateKey)
+        AppViewModel.shared.privateKey = privateKey
+    }
+    
+}
+
+
+extension AuthViewModel {
+    // Biometric stuff
     
     enum BiometricType {
         case none
         case face
         case touch
+    }
+    
+    func biometricType() -> BiometricType {
+        let authContext = LAContext()
+        let _ = authContext.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil)
+        switch authContext.biometryType {
+        case .none:
+            return .none
+        case .touchID:
+            return .touch
+        case .faceID:
+            return .face
+        @unknown default:
+            return .none
+        }
     }
     
     enum AuthenticationError: Error, LocalizedError, Identifiable {
@@ -50,21 +216,6 @@ class AuthViewModel: ObservableObject {
             case .privateKeyNotSaved:
                 return NSLocalizedString("Your credentials have not been saved. Do you want to save them after the next successful login?", comment: "")
             }
-        }
-    }
-    
-    func biometricType() -> BiometricType {
-        let authContext = LAContext()
-        let _ = authContext.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil)
-        switch authContext.biometryType {
-        case .none:
-            return .none
-        case .touchID:
-            return .touch
-        case .faceID:
-            return .face
-        @unknown default:
-            return .none
         }
     }
     
@@ -112,54 +263,4 @@ class AuthViewModel: ObservableObject {
             }
         }
     }
-    
-    
-    func continueButtonPressed() {
-        FirebaseAuthService.shared.startAuth(phoneNumber: phoneNumberInput) { [weak self] success in
-            if success {
-                self?.isShowingVerificationScreen.toggle()
-            } else {
-                print("Unable to send verification")
-//                AppViewModel.shared.showFailure(title: "Error", message: "Unable to send verification", displayMode: .alert)
-            }
-        }
-    }
-    
-    func otcSubmitButtonPressed() {
-        FirebaseAuthService.shared.verifyCode(smsCode: otcInput) { [weak self] success in
-            if success {
-                self?.isShowingWalletScreen.toggle()
-            } else {
-                print("otc verify code error")
-//                AppViewModel.shared.showFailure(title: "Oops", message: nil, displayMode: .alert)
-            }
-        }
-    }
-    
-    func savePrivateKey(privateKey: String) {
-        let _ = KeychainStorage.savePrivateKey(privateKey)
-        AppViewModel.shared.privateKey = privateKey
-    }
-    
-    func pullPrivateKeyButtonPressed() {
-        requestBiometricUnlock { [weak self] result in
-            switch result {
-            case .success(let privateKey):
-                self?.privateKeyInput = privateKey
-            case .failure(let error):
-                print(error.localizedDescription)
-            }
-        }
-    }
-    
-    func signInButtonPressed() {
-        if let privateKey = CryptoService.generatePrivateKeyString(fromString: privateKeyInput) {
-            let _ = KeychainStorage.savePrivateKey(privateKey)
-            AppViewModel.shared.privateKey = privateKey
-        } else {
-            print("Invalid private key")
-//            AppViewModel.shared.showFailure(title: "Whoops", message: "Invalid Private Key", displayMode: .hud)
-        }
-    }
-    
 }

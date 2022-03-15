@@ -79,38 +79,38 @@ class AppViewModel: ObservableObject {
     }
     
     // MARK: Alerts
-//    @Published var successShown = false
-//    @Published var successTitle: String?
-//    @Published var successMessage: String?
-//    @Published var successDisplayMode: AlertToast.DisplayMode = .alert
-//    
-//    @Published var failureShown = false
-//    @Published var failureTitle: String?
-//    @Published var failureMessage: String?
-//    @Published var failureDisplayMode: AlertToast.DisplayMode = .alert
-//    
-//    func showSuccess(title: String, message: String?, displayMode: AlertToast.DisplayMode) {
-//        successTitle = title
-//        successMessage = message
-//        successShown = true
-//        successDisplayMode = displayMode
-//        let generator = UINotificationFeedbackGenerator()
-//        generator.notificationOccurred(.success)
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-//            self.successShown = false
-//        }
-//    }
-//    
-//    func showFailure(title: String, message: String?, displayMode: AlertToast.DisplayMode) {
-//        failureTitle = title
-//        failureMessage = message
-//        failureDisplayMode = displayMode
-//        failureShown = true
-//        let generator = UINotificationFeedbackGenerator()
-//        generator.notificationOccurred(.error)
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-//            self.failureShown = false
-//        }
-//    }
+    @Published var successShown = false
+    @Published var successTitle: String?
+    @Published var successMessage: String?
+    @Published var successDisplayMode: AlertToast.DisplayMode = .alert
+    
+    @Published var failureShown = false
+    @Published var failureTitle: String?
+    @Published var failureMessage: String?
+    @Published var failureDisplayMode: AlertToast.DisplayMode = .alert
+    
+    func showSuccess(title: String, message: String?, displayMode: AlertToast.DisplayMode) {
+        successTitle = title
+        successMessage = message
+        successShown = true
+        successDisplayMode = displayMode
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.success)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            self.successShown = false
+        }
+    }
+    
+    func showFailure(title: String, message: String?, displayMode: AlertToast.DisplayMode) {
+        failureTitle = title
+        failureMessage = message
+        failureDisplayMode = displayMode
+        failureShown = true
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.error)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            self.failureShown = false
+        }
+    }
     
 }

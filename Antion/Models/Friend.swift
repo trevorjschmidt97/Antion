@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Friend: Codable, Identifiable, UserProtocol {
+struct Friend: Codable, Identifiable {
     
     var publicKey: String
     var publicKeyKeywords: [String]

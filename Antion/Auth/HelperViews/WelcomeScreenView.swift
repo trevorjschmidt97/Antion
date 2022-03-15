@@ -13,14 +13,6 @@ struct WelcomeScreenView: View {
     
     @EnvironmentObject var authViewModel: AuthViewModel
     
-    init() {
-        let (sk, pk) = CryptoService.generateKeyPair()
-        privateKey = sk
-        publicKey = pk
-        print(sk)
-        print(pk)
-    }
-    
     var privateKey: String
     var publicKey: String
     @State private var showCopied = false
@@ -72,6 +64,7 @@ struct WelcomeScreenView: View {
                 Button("Continue") {
                     authViewModel.savePrivateKey(privateKey: privateKey)
                 }
+                .disabled(authViewModel.saveUserLoading || authViewModel.saveSearchUserLoading)
                 .font(.title)
                 Spacer()
             }
@@ -93,13 +86,16 @@ struct WelcomeScreenView: View {
                  },
                 onTap: nil,
                 completion: nil)
+            .onAppear {
+                authViewModel.createNewUser(privateKey: privateKey)
+            }
     }
 }
 
-struct WelcomeScreenView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            WelcomeScreenView()
-        }
-    }
-}
+//struct WelcomeScreenView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        NavigationView {
+//            WelcomeScreenView()
+//        }
+//    }
+//}

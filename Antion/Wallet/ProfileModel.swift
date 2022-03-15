@@ -7,10 +7,4 @@
 
 import Foundation
 
-enum WalletState {
-    case own
-    case friends
-    case requested
-    case pendingRequest
-    case stranger
-}
+

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AlertToast
 
 struct SignInView: View {
     
@@ -24,7 +25,7 @@ struct SignInView: View {
                 .padding(.top, 110)
                 .frame(maxWidth: 600)
             
-            TextField("", text: $authViewModel.privateKeyInput, prompt: nil)
+            TextField("", text: $authViewModel.signInPrivateKeyInput, prompt: nil)
                 .font(.body)
                 .textInputAutocapitalization(.never)
                 .disableAutocorrection(true)
@@ -36,12 +37,7 @@ struct SignInView: View {
                 .padding(.horizontal)
                 .frame(maxWidth: 600)
                 .focused($focusState, equals: "privateKey")
-            
-            Button("Pull privateKey") {
-                authViewModel.pullPrivateKeyButtonPressed()
-            }
-            
-            
+
             Button {
                 authViewModel.signInButtonPressed()
                 focusState = nil
@@ -72,6 +68,19 @@ struct SignInView: View {
                     }
                 }
             }
+            .toast(isPresenting: $authViewModel.showInvalidPrivateKey,
+                duration: 1.5,
+                tapToDismiss: true,
+                offsetY: 0.0,
+                alert: {
+                AlertToast(displayMode: .alert,
+                           type: .error(.red),
+                            title: "Invalid Private Key",
+                            subTitle: nil,
+                            style: nil)
+                 },
+                onTap: nil,
+                completion: nil)
     }
 }
 

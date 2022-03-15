@@ -8,6 +8,14 @@
 import Foundation
 import SwiftUI
 
+enum WalletState {
+    case own
+    case friends
+    case requested
+    case pendingRequest
+    case stranger
+}
+
 class WalletViewModel: ObservableObject {
     
     @Published var user: User

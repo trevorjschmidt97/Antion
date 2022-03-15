@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AlertToast
 
 struct VerifyPhoneView: View {
     
@@ -33,14 +34,26 @@ struct VerifyPhoneView: View {
                 .padding(.horizontal)
                 .focused($focusState, equals: "otc")
             
-            NavigationLink(destination: WelcomeScreenView().navigationBarBackButtonHidden(true),
-                           isActive: $authViewModel.isShowingWalletScreen) { EmptyView() }
             Button("Submit") {
+                if authViewModel.phoneNumberHasBeenUsed == nil {
+                    return
+                }
                 authViewModel.otcSubmitButtonPressed()
                 focusState = nil
             }
+            .disabled(authViewModel.phoneNumberHasBeenUsed == nil)
             .font(.title)
             .padding()
+            
+            
+            NavigationLink(destination: WelcomeScreenView(privateKey: authViewModel.privateKey, publicKey: authViewModel.publicKey)
+                            .navigationBarBackButtonHidden(true),
+                           isActive: $authViewModel.isShowingWalletScreen) { EmptyView() }
+            
+            NavigationLink(destination: ReturningPhoneView().navigationBarBackButtonHidden(true), isActive: $authViewModel.showReturningPhoneView) {
+                EmptyView()
+            }
+            
         }
             .navigationTitle("Verify")
             .toolbar {
@@ -54,6 +67,22 @@ struct VerifyPhoneView: View {
                         }
                     }
                 }
+            }
+            .toast(isPresenting: $authViewModel.errorInOtcSubmission,
+                duration: 1.5,
+                tapToDismiss: true,
+                offsetY: 0.0,
+                alert: {
+                AlertToast(displayMode: .alert,
+                           type: .error(.red),
+                            title: "Error Verifying Phone, Start Again",
+                            subTitle: nil,
+                            style: nil)
+                 },
+                onTap: nil,
+                completion: nil)
+            .onAppear {
+                authViewModel.checkPhoneNumber()
             }
     }
 }

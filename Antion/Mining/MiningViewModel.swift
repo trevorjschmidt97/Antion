@@ -32,35 +32,35 @@ class MiningViewModel: ObservableObject {
     }
     
     func startMiningButtonTapped() {
-        isMining = true
-        
-        // Start values
-        var index = 0
-        var previousHash = ""
-        var miningReward = 400
-        var difficulty = 4
-
-        if let latestBlock = latestBlock {
-            index = latestBlock.index + 1
-            previousHash = latestBlock.hash
-            // Change this for different miningReward / difficulty
-            miningReward = Int(Double(miningReward) * pow(0.5, floor(Double(index)/100000)))
-            difficulty = difficulty + (latestBlock.index / 10)
-        }
-
-        // Get pending transactions
-        var pendingTransactionsList = pendingTransactions
-//        var userBalances: [String:Int] = [:]
-        
-        // Check all pendingTransactions
-        for (i, transaction) in pendingTransactionsList.enumerated() {
-            // If is an invalid signaure
-            if !transaction.isValidSignature() {
-                let badTransaction = pendingTransactionsList.remove(at: i)
-                print("Transaction: \(badTransaction.id) invalid signature")
-                continue
-            }
-        }
+//        isMining = true
+//        
+//        // Start values
+//        var index = 0
+//        var previousHash = ""
+//        var miningReward = 400
+//        var difficulty = 4
+//
+//        if let latestBlock = latestBlock {
+//            index = latestBlock.index + 1
+//            previousHash = latestBlock.hash
+//            // Change this for different miningReward / difficulty
+//            miningReward = Int(Double(miningReward) * pow(0.5, floor(Double(index)/100000)))
+//            difficulty = difficulty + (latestBlock.index / 10)
+//        }
+//
+//        // Get pending transactions
+//        var pendingTransactionsList = pendingTransactions
+////        var userBalances: [String:Int] = [:]
+//        
+//        // Check all pendingTransactions
+//        for (i, transaction) in pendingTransactionsList.enumerated() {
+//            // If is an invalid signaure
+//            if !transaction.isValidSignature() {
+//                let badTransaction = pendingTransactionsList.remove(at: i)
+//                print("Transaction: \(badTransaction.id) invalid signature")
+//                continue
+//            }
+//        }
 
         // Add reward Transaction
 //        let rewardTransaction = ConfirmedTransaction(timeStamp: Date.now.toLongString(),
@@ -74,11 +74,11 @@ class MiningViewModel: ObservableObject {
 //                                            fromProfilePicUrl: "")
 //
 //        pendingTransactionsList.append(rewardTransaction)
-        var newBlock = exampleBlock
+//        var newBlock = exampleBlock
 
         
         // Mine the newBlock
-        isMining = true
+//        isMining = true
 //        DispatchQueue.init(label: "mine").async {
 //            while (newBlock.hash.prefix(difficulty) != String(repeating: "0", count: difficulty) && self.isMining) {
 //                newBlock.nonce += 1

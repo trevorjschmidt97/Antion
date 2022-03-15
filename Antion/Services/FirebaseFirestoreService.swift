@@ -12,12 +12,19 @@ struct FirebaseFirestoreService {
     private init() { }
     static let shared = FirebaseFirestoreService()
     
-    private let rootRef = Firestore.firestore()
+    let rootRef = Firestore.firestore()
     
     struct Keys {
+        //Auth
+        static let PhoneNumbers = "PhoneNumbers"
+        static let CountPhoneNumbers = "CountPhoneNumbers"
+        static let countPhoneNumbers = "countPhoneNumbers"
+        static let count = "count"
+        
         // Wallet
         static let Users = "Users"
         
+        static let UserUnspentTransactions = "UserUnspentTransactions"
         static let UserRequestedTransactions = "UserReceivedRequestedTransactions"
         static let UserPendingTransactions = "UserPendingTransactions"
         static let UserConfirmedTransactions = "UserConfirmedTransactions"
@@ -66,64 +73,73 @@ struct FirebaseFirestoreService {
         static let toPublicKey = "toPublicKey"
     }
     
+    enum FirestoreError: String, LocalizedError {
+        case UnwrappingSnapshotFailed = "UnwrappingSnapshotFailed"
+        case CodingModelFailed
+    }
+    
     // MARK: Authentication
+    
     
     
     
     // MARK: UserLoggedIn
 
     func fetchUserInfo(publicKey: String, completion: @escaping (User?) -> Void) {
-        rootRef.collection(Keys.Users).document(publicKey.slashToDash()).getDocument { document, error in
-            guard error == nil else {
-                print(error?.localizedDescription ?? "error")
-                completion(nil)
-                return
-            }
-            if let document = document, document.exists, let data = document.data() {
-                let user = try! FirebaseDecoder().decode(User.self, from: data)
-                completion(user)
-            } else {
-                print("Document does not exist")
-                completion(nil)
-            }
-        }
+        completion(nil)
+//        rootRef.collection(Keys.Users).document(publicKey.slashToDash()).getDocument { document, error in
+//            guard error == nil else {
+//                print(error?.localizedDescription ?? "error")
+//                completion(nil)
+//                return
+//            }
+//            if let document = document, document.exists, let data = document.data() {
+//                let user = try! FirebaseDecoder().decode(User.self, from: data)
+//                completion(user)
+//            } else {
+//                print("Document does not exist")
+//                completion(nil)
+//            }
+//        }
     }
     
     // MARK: ProfilePage
     
     func getFriends(forPublicKey publicKey: String, completion: @escaping ([Friend]) -> Void) {
-        rootRef
-            .collection(Keys.Users)
-            .document(publicKey.slashToDash())
-            .collection(Keys.UserFriends)
-            .getDocuments { querySnapshot, error in
-                guard let documents = querySnapshot?.documents else {
-                    print("No documents")
-                    completion([])
-                    return
-                }
-                    
-                
-                
-                let acquaintances = documents.map { queryDocumentSnapshot -> Friend in
-                    return try! FirebaseDecoder().decode(Friend.self, from: queryDocumentSnapshot.data())
-                }
-                
-                completion(acquaintances)
-        }
+        completion([])
+//        rootRef
+//            .collection(Keys.Users)
+//            .document(publicKey.slashToDash())
+//            .collection(Keys.UserFriends)
+//            .getDocuments { querySnapshot, error in
+//                guard let documents = querySnapshot?.documents else {
+//                    print("No documents")
+//                    completion([])
+//                    return
+//                }
+//
+//
+//
+//                let acquaintances = documents.map { queryDocumentSnapshot -> Friend in
+//                    return try! FirebaseDecoder().decode(Friend.self, from: queryDocumentSnapshot.data())
+//                }
+//
+//                completion(acquaintances)
+//        }
     }
     
     func getPendingTransactions(forPublicKey publicKey: String, completion: @escaping ([ConfirmedTransaction]) -> Void) {
-        rootRef.collection(Keys.Users).document(publicKey.slashToDash()).collection(Keys.UserPendingTransactions).order(by: "timeStamp", descending: true).addSnapshotListener { snapshot, error in
-            guard let documents = snapshot?.documents else {
-                completion([])
-                return
-            }
-            let transactions = documents.map { qSnapshot in
-                return try! FirebaseDecoder().decode(ConfirmedTransaction.self, from: qSnapshot.data())
-            }
-            completion(transactions)
-        }
+        completion([])
+//        rootRef.collection(Keys.Users).document(publicKey.slashToDash()).collection(Keys.UserPendingTransactions).order(by: "timeStamp", descending: true).addSnapshotListener { snapshot, error in
+//            guard let documents = snapshot?.documents else {
+//                completion([])
+//                return
+//            }
+//            let transactions = documents.map { qSnapshot in
+//                return try! FirebaseDecoder().decode(ConfirmedTransaction.self, from: qSnapshot.data())
+//            }
+//            completion(transactions)
+//        }
     }
     
     func getConfirmedTransactions(forPublicKey publicKey: String, completion: @escaping ([ConfirmedTransaction]) -> Void) {
@@ -172,10 +188,10 @@ struct FirebaseFirestoreService {
     func updateProfilePicUrl(publicKey: String, profilePicUrl: String) {
         
         // Update Users/{publicKey}/profilePicUrl
-        rootRef.collection(Keys.Users).document(publicKey.slashToDash()).updateData([Keys.profilePicUrl: profilePicUrl])
+//        rootRef.collection(Keys.Users).document(publicKey.slashToDash()).updateData([Keys.profilePicUrl: profilePicUrl])
         
         // Update SearchUsers/{publicKey}/profilePicUrl
-        rootRef.collection(Keys.SearchUsers).document(publicKey.slashToDash()).updateData([Keys.profilePicUrl: profilePicUrl])
+//        rootRef.collection(Keys.SearchUsers).document(publicKey.slashToDash()).updateData([Keys.profilePicUrl: profilePicUrl])
         
         // For acquaintance in acquaintances
             // Update in Users/{acquaintancePublicKey}/Acquaintances/{publicKey}/profilePicUrl
@@ -221,160 +237,165 @@ struct FirebaseFirestoreService {
     // MARK: Transactions Page
     
     func fetchFeedTransactions(forPublicKey publicKey: String) async throws -> [ConfirmedTransaction] {
-        guard publicKey != "" else {
-            return []
-        }
-        let transactionsSnapshot = try await rootRef
-            .collection(Keys.FeedTransactions)
-            .document(publicKey.slashToDash())
-            .collection(Keys.UserFeedTransactions)
-            .getDocuments()
-        
-        let transactions = transactionsSnapshot.documents.map { queryDocumentSnapshot -> ConfirmedTransaction in
-            return try! FirebaseDecoder().decode(ConfirmedTransaction.self, from: queryDocumentSnapshot.data())
-        }
-        return transactions
+        return []
+//        guard publicKey != "" else {
+//            return []
+//        }
+//        let transactionsSnapshot = try await rootRef
+//            .collection(Keys.FeedTransactions)
+//            .document(publicKey.slashToDash())
+//            .collection(Keys.UserFeedTransactions)
+//            .getDocuments()
+//
+//        let transactions = transactionsSnapshot.documents.map { queryDocumentSnapshot -> ConfirmedTransaction in
+//            return try! FirebaseDecoder().decode(ConfirmedTransaction.self, from: queryDocumentSnapshot.data())
+//        }
+//        return transactions
     }
     
     func fetchFeedTransactions(forPublicKey publicKey: String, completion: @escaping([ConfirmedTransaction]) -> Void) {
-        guard publicKey != "" else {
-            completion([])
-            return
-        }
-        rootRef
-            .collection(Keys.FeedTransactions)
-            .document(publicKey.slashToDash())
-            .collection(Keys.UserFeedTransactions)
-            .addSnapshotListener { querySnapshot, error in
-            if let error = error {
-                print("Error in fetch feed transactions: \(error.localizedDescription)")
-                completion([])
-                return
-            }
-            guard let querySnapshot = querySnapshot else {
-                print("Unable to unwrap querySnapshot in fetchFeedTransactions")
-                completion([])
-                return
-            }
-
-            if querySnapshot.isEmpty {
-                completion([])
-                return
-            }
-            
-            if querySnapshot.documents.isEmpty {
-                completion([])
-                return
-            }
-            
-            if querySnapshot.documents.count == 0 {
-                completion([])
-                return
-            }
-            
-            let transactions = querySnapshot.documents.map { queryDocumentSnapshot -> ConfirmedTransaction in
-                return try! FirebaseDecoder().decode(ConfirmedTransaction.self, from: queryDocumentSnapshot.data())
-            }
-            completion(transactions)
-        }
+        completion([])
+//        guard publicKey != "" else {
+//            completion([])
+//            return
+//        }
+//        rootRef
+//            .collection(Keys.FeedTransactions)
+//            .document(publicKey.slashToDash())
+//            .collection(Keys.UserFeedTransactions)
+//            .addSnapshotListener { querySnapshot, error in
+//            if let error = error {
+//                print("Error in fetch feed transactions: \(error.localizedDescription)")
+//                completion([])
+//                return
+//            }
+//            guard let querySnapshot = querySnapshot else {
+//                print("Unable to unwrap querySnapshot in fetchFeedTransactions")
+//                completion([])
+//                return
+//            }
+//
+//            if querySnapshot.isEmpty {
+//                completion([])
+//                return
+//            }
+//
+//            if querySnapshot.documents.isEmpty {
+//                completion([])
+//                return
+//            }
+//
+//            if querySnapshot.documents.count == 0 {
+//                completion([])
+//                return
+//            }
+//
+//            let transactions = querySnapshot.documents.map { queryDocumentSnapshot -> ConfirmedTransaction in
+//                return try! FirebaseDecoder().decode(ConfirmedTransaction.self, from: queryDocumentSnapshot.data())
+//            }
+//            completion(transactions)
+//        }
     }
     
     func searchFriends(searchPrompt: String, publicKey: String, completion: @escaping ([OtherUser]) -> Void) {
-        rootRef
-            .collection(Keys.Users)
-            .document(publicKey.slashToDash())
-            .collection(Keys.UserFriends)
-            .whereField("name", isGreaterThanOrEqualTo: searchPrompt)
-            .order(by: "name")
-            .limit(to: 10)
-            .getDocuments { querySnapshot, error in
-            completion([])
-        }
+        completion([])
+//        rootRef
+//            .collection(Keys.Users)
+//            .document(publicKey.slashToDash())
+//            .collection(Keys.UserFriends)
+//            .whereField("name", isGreaterThanOrEqualTo: searchPrompt)
+//            .order(by: "name")
+//            .limit(to: 10)
+//            .getDocuments { querySnapshot, error in
+//            completion([])
+//        }
     }
     
     func fetchRecepientsForTransaction(completion: @escaping ([OtherUser]) -> Void) {
-        rootRef
-            .collection(Keys.Users)
-            .getDocuments { querySnapshot, error in
-            guard let documents = querySnapshot?.documents else {
-                print("No documents")
-                completion([])
-                return
-            }
-            
-            let users = documents.map { queryDocumentSnapshot -> OtherUser in
-                return try! FirebaseDecoder().decode(OtherUser.self, from: queryDocumentSnapshot.data())
-            }
-            
-            completion(users)
-        }
+        completion([])
+//        rootRef
+//            .collection(Keys.Users)
+//            .getDocuments { querySnapshot, error in
+//            guard let documents = querySnapshot?.documents else {
+//                print("No documents")
+//                completion([])
+//                return
+//            }
+//
+//            let users = documents.map { queryDocumentSnapshot -> OtherUser in
+//                return try! FirebaseDecoder().decode(OtherUser.self, from: queryDocumentSnapshot.data())
+//            }
+//
+//            completion(users)
+//        }
     }
     
     func postPendingTransaction(_ transaction: ConfirmedTransaction) {
-        // Encode Data
-        let docData = try! FirestoreEncoder().encode(transaction)
-        
-        // Post to root/PendingTransactions/{transactionId}
-        rootRef
-            .collection(Keys.PendingTransactions)
-            .document(transaction.id)
-            .setData(docData) { error in
-            if let error = error {
-                print("Error writing transaction to PendingTransactions: \(error.localizedDescription)")
-            } else {
-                print("Pending transaction successfully written to PendingTransactions")
-            }
-        }
-        
-        // Post to root/Users/{userPublicKey}/UserPendingTransactions/{transactionId}
-        rootRef
-            .collection(Keys.Users)
-            .document(transaction.fromPublicKey.slashToDash())
-            .collection(Keys.UserPendingTransactions)
-            .document(transaction.id)
-            .setData(docData) { error in
-            if let error = error {
-                print("Error writing transaction to UsersPendingTransactions: \(error.localizedDescription)")
-            } else {
-                print("Pending transaction successfully written to UsersPendingTransactions")
-            }
-        }
+//        // Encode Data
+//        let docData = try! FirestoreEncoder().encode(transaction)
+//
+//        // Post to root/PendingTransactions/{transactionId}
+//        rootRef
+//            .collection(Keys.PendingTransactions)
+//            .document(transaction.id)
+//            .setData(docData) { error in
+//            if let error = error {
+//                print("Error writing transaction to PendingTransactions: \(error.localizedDescription)")
+//            } else {
+//                print("Pending transaction successfully written to PendingTransactions")
+//            }
+//        }
+//
+//        // Post to root/Users/{userPublicKey}/UserPendingTransactions/{transactionId}
+//        rootRef
+//            .collection(Keys.Users)
+//            .document(transaction.fromPublicKey.slashToDash())
+//            .collection(Keys.UserPendingTransactions)
+//            .document(transaction.id)
+//            .setData(docData) { error in
+//            if let error = error {
+//                print("Error writing transaction to UsersPendingTransactions: \(error.localizedDescription)")
+//            } else {
+//                print("Pending transaction successfully written to UsersPendingTransactions")
+//            }
+//        }
     }
     
     // MARK: Mining Page
     
     func getPendingTransactions(completion: @escaping ([ConfirmedTransaction]) -> Void) {
-        rootRef.collection(Keys.PendingTransactions)
-            .order(by: "timeStamp", descending: true)
-            .addSnapshotListener { snapshot, error in
-                guard let documents = snapshot?.documents else {
-                    completion([])
-                    return
-                }
-                let transactions = documents.map { qSnapshot in
-                    return try! FirebaseDecoder().decode(ConfirmedTransaction.self, from: qSnapshot.data())
-                }
-                completion(transactions)
-            }
+        completion([])
+//        rootRef.collection(Keys.PendingTransactions)
+//            .order(by: "timeStamp", descending: true)
+//            .addSnapshotListener { snapshot, error in
+//                guard let documents = snapshot?.documents else {
+//                    completion([])
+//                    return
+//                }
+//                let transactions = documents.map { qSnapshot in
+//                    return try! FirebaseDecoder().decode(ConfirmedTransaction.self, from: qSnapshot.data())
+//                }
+//                completion(transactions)
+//            }
     }
     
     
     func removePendingTransaction(_ transaction: ConfirmedTransaction) {
-        // Remove from root/PendingTransactions/{transactionId}
-        rootRef
-            .collection(Keys.PendingTransactions)
-            .document(transaction.id)
-            .delete()
-
-        if transaction.fromPublicKey != "" {
-            // Remove from root/Users/{userPublicKey}/UserPendingTransactions/{transactionId}
-            rootRef
-                .collection(Keys.Users)
-                .document(transaction.fromPublicKey.slashToDash())
-                .collection(Keys.UserPendingTransactions)
-                .document(transaction.id)
-                .delete()
-        }
+//        // Remove from root/PendingTransactions/{transactionId}
+//        rootRef
+//            .collection(Keys.PendingTransactions)
+//            .document(transaction.id)
+//            .delete()
+//
+//        if transaction.fromPublicKey != "" {
+//            // Remove from root/Users/{userPublicKey}/UserPendingTransactions/{transactionId}
+//            rootRef
+//                .collection(Keys.Users)
+//                .document(transaction.fromPublicKey.slashToDash())
+//                .collection(Keys.UserPendingTransactions)
+//                .document(transaction.id)
+//                .delete()
+//        }
     }
     
     func savePublishedTransaction(_ transaction: ConfirmedTransaction) async {
@@ -460,14 +481,14 @@ struct FirebaseFirestoreService {
     
     
     func saveBlock(_ block: Block) {
-        let docData = try! FirestoreEncoder().encode(block)
-        rootRef.collection(Keys.Blockchain).document(String(block.id)).setData(docData) { error in
-            if let error = error {
-                print(error.localizedDescription)
-                return
-            }
-            print("Successfully saved block")
-        }
+//        let docData = try! FirestoreEncoder().encode(block)
+//        rootRef.collection(Keys.Blockchain).document(String(block.id)).setData(docData) { error in
+//            if let error = error {
+//                print(error.localizedDescription)
+//                return
+//            }
+//            print("Successfully saved block")
+//        }
     }
     
     

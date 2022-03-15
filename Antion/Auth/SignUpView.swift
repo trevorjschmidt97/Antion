@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import AlertToast
+import Combine
 
 struct SignUpView: View {
     
@@ -15,6 +17,7 @@ struct SignUpView: View {
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             
+            // Phone Number
             HStack {
                 Text("phone number")
                     .font(.subheadline)
@@ -24,6 +27,13 @@ struct SignUpView: View {
                 .padding(.top, 110)
             
             TextField("(xxx) xxx-xxxx", text: $authViewModel.phoneNumberInput, prompt: Text("(xxx) xxx-xxxx"))
+                .onReceive(Just(authViewModel.phoneNumberInput)) { newValue in
+                    var filtered = newValue.filter { "+0123456789".contains($0) }
+                    filtered = filtered.replacingOccurrences(of: "^0+", with: "", options: .regularExpression)
+                    if filtered != newValue {
+                        authViewModel.phoneNumberInput = filtered
+                    }
+                }
                 .font(.body)
                 .textInputAutocapitalization(.never)
                 .disableAutocorrection(true)
@@ -36,10 +46,9 @@ struct SignUpView: View {
                 .padding(.horizontal)
                 .focused($focusState, equals: "phone")
             
-            NavigationLink(destination: VerifyPhoneView(),
-                           isActive: $authViewModel.isShowingVerificationScreen) { EmptyView() }
+            
             Button {
-                authViewModel.continueButtonPressed()
+                authViewModel.initiatePhoneAuth()
                 focusState = nil
             } label: {
                 Text("CONTINUE")
@@ -53,27 +62,20 @@ struct SignUpView: View {
                 .padding(.top, 40)
                 .padding(.bottom, 80)
             
+            // Go to sign In Screen
             NavigationLink {
                 SignInView()
             } label: {
                 Text("Already have a private key?")
                     .font(.body)
             }
-
+            
+            // Emptyview to change to phone verification screen
+            NavigationLink(destination: VerifyPhoneView(),
+                           isActive: $authViewModel.showPhoneVerificationScreen) { EmptyView() }
         }
             .onAppear {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    authViewModel.requestBiometricUnlock { result in
-                        DispatchQueue.main.async {
-                            switch result {
-                            case .success(let privateKey):
-                                AppViewModel.shared.privateKey = privateKey
-                            case .failure(let error):
-                                print(error.localizedDescription)
-                            }
-                        }
-                    }
-                }
+                authViewModel.onAppear()
             }
             .navigationTitle("Welcome")
             .toolbar {
@@ -89,6 +91,21 @@ struct SignUpView: View {
                     }
                 }
             }
+            .toast(isPresenting: $authViewModel.errorSendingPhoneAuthCode,
+                duration: 1.5,
+                tapToDismiss: true,
+                offsetY: 0.0,
+                alert: {
+                AlertToast(displayMode: .alert,
+                           type: .error(.red),
+                            title: "Error Starting Authentication",
+                            subTitle: nil,
+                            style: nil)
+                 },
+                onTap: nil,
+                completion: nil)
+            
+        
     }
 }
 

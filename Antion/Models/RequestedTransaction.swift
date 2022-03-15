@@ -1,5 +1,5 @@
 //
-//  PendingTransaction.swift
+//  RequestedTransaction.swift
 //  Antion
 //
 //  Created by Trevor Schmidt on 3/10/22.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct PendingTransaction: Codable, Identifiable, TransactionProtocol {
+struct RequestedTransaction: Codable, Identifiable {
     var id: String
 
     var fromPublicKey: String
@@ -23,5 +23,5 @@ struct PendingTransaction: Codable, Identifiable, TransactionProtocol {
 
     var note: String
     
-    var signature: String
+    var fromSelf: Bool
 }

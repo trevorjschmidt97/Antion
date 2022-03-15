@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct ConfirmedTransaction: Identifiable, Codable, TransactionProtocol {
+struct ConfirmedTransaction: Identifiable, Codable {
     var id: String
     
     var fromPublicKey: String
@@ -28,7 +28,10 @@ struct ConfirmedTransaction: Identifiable, Codable, TransactionProtocol {
     var numLikes: Int
     
     var blockHash: String
-    var merklePath: String
+    var merklePath: [String]
+    
+    var inputs: [UnspentTransaction]
+    var outputs: [UnspentTransaction]
     
     var formattedAmount: String {
         amount.formattedAmount()

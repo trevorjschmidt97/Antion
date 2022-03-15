@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-//import AlertToast
+import AlertToast
 
 public func printError(file: String = #file, function: String = #function, line: Int = #line ) {
     print("Error in\nfile: \(file)\nfunction: \(function)\nline: \(line)")
@@ -33,33 +33,33 @@ struct AntionApp: App {
                 .accentColor(AppViewModel.shared.accentColor)
                 // Alerts
                     // Success
-//                .toast(isPresenting: $appViewModel.successShown,
-//                       duration: 1.5,
-//                       tapToDismiss: true,
-//                       offsetY: 0.0,
-//                       alert: {
-//                            AlertToast(displayMode: appViewModel.successDisplayMode,
-//                                       type: .complete(.green),
-//                                       title: appViewModel.successTitle,
-//                                       subTitle: appViewModel.successMessage,
-//                                       style: nil)
-//                        },
-//                       onTap: nil,
-//                       completion: nil)
-//                    // Failure
-//                .toast(isPresenting: $appViewModel.failureShown,
-//                       duration: 1.5,
-//                       tapToDismiss: true,
-//                       offsetY: 0.0,
-//                       alert: {
-//                            AlertToast(displayMode: appViewModel.failureDisplayMode,
-//                                       type: .error(.red),
-//                                       title: appViewModel.failureTitle,
-//                                       subTitle: appViewModel.failureMessage,
-//                                       style: nil)
-//                        },
-//                       onTap: nil,
-//                       completion: nil)
+                .toast(isPresenting: $appViewModel.successShown,
+                       duration: 1.5,
+                       tapToDismiss: true,
+                       offsetY: 0.0,
+                       alert: {
+                            AlertToast(displayMode: appViewModel.successDisplayMode,
+                                       type: .complete(.green),
+                                       title: appViewModel.successTitle,
+                                       subTitle: appViewModel.successMessage,
+                                       style: nil)
+                        },
+                       onTap: nil,
+                       completion: nil)
+                    // Failure
+                .toast(isPresenting: $appViewModel.failureShown,
+                       duration: 1.5,
+                       tapToDismiss: true,
+                       offsetY: 0.0,
+                       alert: {
+                            AlertToast(displayMode: appViewModel.failureDisplayMode,
+                                       type: .error(.red),
+                                       title: appViewModel.failureTitle,
+                                       subTitle: appViewModel.failureMessage,
+                                       style: nil)
+                        },
+                       onTap: nil,
+                       completion: nil)
                 
         }
     }
