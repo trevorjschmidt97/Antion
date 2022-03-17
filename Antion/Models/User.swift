@@ -17,6 +17,8 @@ struct OtherUser: Codable, Identifiable {
     }
 }
 
+
+
 struct User: Codable, Identifiable {
     
     var name: String
