@@ -60,7 +60,6 @@ class AuthViewModel: ObservableObject {
     }
     
     @Published var phoneNumberHasBeenUsed: Bool? = nil
-    @Published var count = 0
     func checkPhoneNumber() {
         FirebaseFirestoreService.shared.phoneHasBeenUsed(phoneNumber: phoneNumberInput) { [weak self] result in
             guard let self = self else { return }
@@ -75,6 +74,7 @@ class AuthViewModel: ObservableObject {
     
     @Published var showReturningPhoneView = false
     @Published var errorInOtcSubmission = false
+    @Published var count: Int? = nil
     func otcSubmitButtonPressed() {
         // Make sure we know if they've used the phone number yet
         // the button is deactivated until we know, so this shouldn't be a problem
@@ -83,19 +83,27 @@ class AuthViewModel: ObservableObject {
         }
         
         FirebaseAuthService.shared.verifyCode(smsCode: otcInput) { [weak self] success in
+            guard let self = self else { return }
             if success { // Correct phone code
                 if phoneNumberHasBeenUsed { // If it's been used
-                    self?.showReturningPhoneView = true
+                    self.showReturningPhoneView = true
                 } else { // If it hasn't been used, create a new account for them
-                    // Store it in the db
-                    // Create a free transaction for them
+                    FirebaseFirestoreService.shared.storePhoneNumber(phoneNumber: self.phoneNumberInput) { [weak self] result in
+                        guard let self = self else { return }
+                        switch result {
+                        case .success(let success):
+                            self.count = success
+                        case .failure(let failure):
+                            print(failure.localizedDescription)
+                        }
+                    }
                     let (sk, pk) = CryptoService.generateKeyPair()
-                    self?.publicKey = pk
-                    self?.privateKey = sk
-                    self?.isShowingWalletScreen.toggle()
+                    self.publicKey = pk
+                    self.privateKey = sk
+                    self.isShowingWalletScreen.toggle()
                 }
             } else { // Incorrect phone code
-                self?.errorInOtcSubmission = true
+                self.errorInOtcSubmission = true
             }
         }
     }

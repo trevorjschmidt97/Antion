@@ -28,6 +28,9 @@ struct AntionApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(appViewModel)
+                .onAppear {
+                    appViewModel.onAppear()
+                }
                 .navigationViewStyle(StackNavigationViewStyle())
                 .tint(AppViewModel.shared.accentColor)
                 .accentColor(AppViewModel.shared.accentColor)

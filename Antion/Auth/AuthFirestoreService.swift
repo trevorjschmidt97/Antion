@@ -95,4 +95,8 @@ extension FirebaseFirestoreService {
         
     }
     
+//    func createFreeTransaction(publicKey: String, amount: Int) {
+//        rootRef.collection(<#T##collectionPath: String##String#>)
+//    }
+    
 }

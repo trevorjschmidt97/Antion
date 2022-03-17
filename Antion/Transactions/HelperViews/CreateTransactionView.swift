@@ -31,7 +31,7 @@ struct CreateTransactionView: View {
         Int(amountInput.replacingOccurrences(of: ".", with: "").replacingOccurrences(of: "$", with: "")) ?? 0
     }
     var validAmount: Bool {
-        if intAmountInput <= 0 || appViewModel.userInfo.balance < intAmountInput {
+        if intAmountInput <= 0 || appViewModel.user.balance < intAmountInput {
             return false
         }
         return true
@@ -94,13 +94,13 @@ struct CreateTransactionView: View {
                         } else {
 //                            let transaction = ConfirmedTransaction(timeStamp: dateStamp,
 //                                                          amount: intAmountInput,
-//                                                          fromPublicKey: appViewModel.userInfo.publicKey,
+//                                                          fromPublicKey: appViewModel.user.publicKey,
 //                                                          toPublicKey: otherUser.publicKey,
 //                                                          note: commentsInput,
 //                                                          signature: signature,
-//                                                          fromName: appViewModel.userInfo.name,
+//                                                          fromName: appViewModel.user.name,
 //                                                          toName: otherUser.name,
-//                                                          fromProfilePicUrl: appViewModel.userInfo.profilePicUrl)
+//                                                          fromProfilePicUrl: appViewModel.user.profilePicUrl)
 //                            viewModel.postTransaction(transaction)
                             presentationMode.wrappedValue.dismiss()
                             parent.presentationMode.wrappedValue.dismiss()
@@ -141,7 +141,7 @@ struct CreateTransactionView: View {
                     alert: { AlertToast(displayMode: .alert,
                                         type: .error(.red),
                                         title: "Oops",
-                                        subTitle: "Not enough balance for transaction, you have $\(appViewModel.userInfo.formattedBalance)",
+                                        subTitle: "Not enough balance for transaction, you have $\(appViewModel.user.formattedBalance)",
                                         style: nil)
                      },
                     onTap: nil,
@@ -318,7 +318,7 @@ struct CreateTransactionView: View {
     func selfView() -> some View {
         HStack {
             VStack(alignment: .leading) {
-                Text("\(transactionType == .pay ? "From" : "To"): \(appViewModel.userInfo.name)")
+                Text("\(transactionType == .pay ? "From" : "To"): \(appViewModel.user.name)")
                     .fontWeight(.bold)
                 Text("\tPublic Key:")
                 Text("\t\t@" + appViewModel.publicKey.prefix(22))
@@ -327,8 +327,8 @@ struct CreateTransactionView: View {
                     .font(.system(.footnote , design: .monospaced))
             }
             Spacer()
-            ProfilePicView(username: appViewModel.userInfo.name,
-                           profilePicUrl: appViewModel.userInfo.profilePicUrl,
+            ProfilePicView(username: appViewModel.user.name,
+                           profilePicUrl: appViewModel.user.profilePicUrl,
                            size: 55)
         }
     }

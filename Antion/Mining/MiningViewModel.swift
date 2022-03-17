@@ -66,7 +66,7 @@ class MiningViewModel: ObservableObject {
 //        let rewardTransaction = ConfirmedTransaction(timeStamp: Date.now.toLongString(),
 //                                            amount: miningReward,
 //                                            fromPublicKey: "",
-//                                            toPublicKey: AppViewModel.shared.userInfo.publicKey,
+//                                            toPublicKey: AppViewModel.shared.user.publicKey,
 //                                            note: "Mining Reward",
 //                                            signature: "",
 //                                            fromName: "Mining Reward",

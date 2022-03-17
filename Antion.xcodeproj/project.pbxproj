@@ -41,7 +41,6 @@
 		69B403F127DAD45A0025889B /* PendingTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69B403F027DAD45A0025889B /* PendingTransaction.swift */; };
 		69B403F527DAD6ED0025889B /* Int+String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69B403F427DAD6ED0025889B /* Int+String.swift */; };
 		69B403F727DAD7D60025889B /* SearchUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69B403F627DAD7D60025889B /* SearchUser.swift */; };
-		69B403F927DAD87A0025889B /* UserProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69B403F827DAD87A0025889B /* UserProtocol.swift */; };
 		69B403FB27DADA4B0025889B /* BlockHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69B403FA27DADA4B0025889B /* BlockHeader.swift */; };
 		69C0B53627928533006C3DBD /* SendRecieveAntionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69C0B53527928533006C3DBD /* SendRecieveAntionButton.swift */; };
 		69C0B5382794E727006C3DBD /* TransactionsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69C0B5372794E727006C3DBD /* TransactionsViewModel.swift */; };
@@ -119,7 +118,6 @@
 		69B403F027DAD45A0025889B /* PendingTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTransaction.swift; sourceTree = "<group>"; };
 		69B403F427DAD6ED0025889B /* Int+String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Int+String.swift"; sourceTree = "<group>"; };
 		69B403F627DAD7D60025889B /* SearchUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchUser.swift; sourceTree = "<group>"; };
-		69B403F827DAD87A0025889B /* UserProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProtocol.swift; sourceTree = "<group>"; };
 		69B403FA27DADA4B0025889B /* BlockHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockHeader.swift; sourceTree = "<group>"; };
 		69C0B53527928533006C3DBD /* SendRecieveAntionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendRecieveAntionButton.swift; sourceTree = "<group>"; };
 		69C0B5372794E727006C3DBD /* TransactionsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionsViewModel.swift; sourceTree = "<group>"; };
@@ -250,7 +248,6 @@
 		693DBED52774089F000F6459 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				69B403F827DAD87A0025889B /* UserProtocol.swift */,
 				694B6FE52795140500DF29EC /* User.swift */,
 				69A9258B279882EB006056FB /* Friend.swift */,
 				69B403F627DAD7D60025889B /* SearchUser.swift */,
@@ -545,7 +542,6 @@
 				69127268277AF6910086F60D /* ChangeAppColorView.swift in Sources */,
 				6930B648277B8AF9005D9CF5 /* FindRecepientView.swift in Sources */,
 				69CD51F2276E904100CC1744 /* FirebaseStorageService.swift in Sources */,
-				69B403F927DAD87A0025889B /* UserProtocol.swift in Sources */,
 				69CD51F9276E963400CC1744 /* AppViewModel.swift in Sources */,
 				69CD51F4276E908C00CC1744 /* FirebaseFunctionsService.swift in Sources */,
 				69B403FB27DADA4B0025889B /* BlockHeader.swift in Sources */,

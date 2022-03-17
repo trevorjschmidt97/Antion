@@ -12,6 +12,8 @@ import AlertToast
 class AppViewModel: ObservableObject {
     private init() { }
     static let shared = AppViewModel()
+    
+    var blockChain: [String:Block] = [:]
         
     // MARK: Auth
     @Published var privateKey: String?
@@ -28,16 +30,23 @@ class AppViewModel: ObservableObject {
     
     // MARK: UserInfo
     @Published var loadingUserInfo = true
-    @Published var userInfo: User = exampleUser
+    @Published var user: User = exampleUser
     @AppStorage("userName") var name = "Anonymous"
     @AppStorage("userProfilePicUrl") var profilePicUrl = ""
+    
+    // MARK: Database Calls
+    func onAppear() {
+        if let udBlockChain = UserDefaults.standard.object(forKey: "blockChain") as? [String:Block] {
+            blockChain = udBlockChain
+        }
+    }
     
     func pullUserInfo() {
         guard publicKey != "" else { return }
         FirebaseFirestoreService.shared.fetchUserInfo(publicKey: publicKey.slashToDash()) { [weak self] result in
             DispatchQueue.main.async {
                 if let result = result {
-                    self?.userInfo = result            
+                    self?.user = result            
                 }
                 self?.loadingUserInfo = false
             }

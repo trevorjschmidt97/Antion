@@ -64,7 +64,7 @@ struct WelcomeScreenView: View {
                 Button("Continue") {
                     authViewModel.savePrivateKey(privateKey: privateKey)
                 }
-                .disabled(authViewModel.saveUserLoading || authViewModel.saveSearchUserLoading)
+                .disabled(authViewModel.saveUserLoading || authViewModel.saveSearchUserLoading || authViewModel.count == nil)
                 .font(.title)
                 Spacer()
             }

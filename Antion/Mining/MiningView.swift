@@ -35,7 +35,7 @@ struct MiningView: View {
             }
             
             if isShowingMining {
-                Text("You have mined \(appViewModel.userInfo.name) blocks and have received \(appViewModel.userInfo.name) antion as rewards")
+                Text("You have mined \(appViewModel.user.name) blocks and have received \(appViewModel.user.name) antion as rewards")
                     .padding(30)
                 
                 Button("Start Mining?") {

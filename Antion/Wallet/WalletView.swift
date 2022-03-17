@@ -14,9 +14,9 @@ struct WalletView: View {
         
 //        if publicKey == AppViewModel.shared.publicKey {
 //            walletState = .own
-//        } else if AppViewModel.shared.userInfo.friendPublicKeys.contains(publicKey) {
+//        } else if AppViewModel.shared.user.friendPublicKeys.contains(publicKey) {
 //            walletState = .friends
-//        } else if AppViewModel.shared.userInfo.selfRequestedFriendPublicKeys.contains(publicKey) {
+//        } else if AppViewModel.shared.user.selfRequestedFriendPublicKeys.contains(publicKey) {
 //            walletState = .requested
 //        } else {
 //            walletState = .stranger

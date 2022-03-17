@@ -7,6 +7,16 @@
 
 import Foundation
 
+struct OtherUser: Codable, Identifiable {
+    var publicKey: String
+    var name: String
+    var profilePicUrl: String
+    
+    var id: String {
+        publicKey
+    }
+}
+
 struct User: Codable, Identifiable {
     
     var name: String
