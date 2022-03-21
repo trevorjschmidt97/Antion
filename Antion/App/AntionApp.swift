@@ -9,7 +9,7 @@ import SwiftUI
 import AlertToast
 
 public func printError(file: String = #file, function: String = #function, line: Int = #line ) {
-    print("Error in\nfile: \(file)\nfunction: \(function)\nline: \(line)")
+    print("Error in file: \n\t\(file)\nfunction: \n\t\(function), line: \(line)")
 }
 
 @main
@@ -31,6 +31,14 @@ struct AntionApp: App {
                 .onAppear {
                     appViewModel.onAppear()
                 }
+                .onChange(of: appViewModel.user.selfRequestedFriends, perform: { newValue in
+                    print("New self requested friend")
+                    print(newValue)
+                })
+                .onChange(of: appViewModel.user.otherRequestedFriends, perform: { newValue in
+                    print("New other requested friend")
+                    print(newValue)
+                })
                 .navigationViewStyle(StackNavigationViewStyle())
                 .tint(AppViewModel.shared.accentColor)
                 .accentColor(AppViewModel.shared.accentColor)

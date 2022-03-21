@@ -9,7 +9,7 @@ import SwiftUI
 
 struct RawTransactionView: View {
     
-    var transaction: ConfirmedTransaction
+    var transaction: Transaction
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -29,8 +29,8 @@ struct RawTransactionView: View {
                 Text("Recepient Public Key:")
                 Spacer()
                 VStack {
-                    Text("\t" + transaction.toPublicKey.prefix(22))
-                    Text("\t" + transaction.toPublicKey.suffix(22))
+//                    Text("\t" + transaction.toPublicKey.prefix(22))
+//                    Text("\t" + transaction.toPublicKey.suffix(22))
                 }
             }
             .padding(.bottom, 2)
@@ -43,7 +43,7 @@ struct RawTransactionView: View {
             Text("Comments: \(transaction.note)")
                 .padding(.bottom, 2)
             if let signature = transaction.signature {
-                Text("Signature: \(transaction.isValidSignature() ? "Valid" : "Invalid")")
+//                Text("Signature: \(transaction.isValidSignature() ? "Valid" : "Invalid")")
                 VStack(alignment: .leading) {
                     Text("\t" + signature.prefix(44))
                     Text("\t" + signature.suffix(44))

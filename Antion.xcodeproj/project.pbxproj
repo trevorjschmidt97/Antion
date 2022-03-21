@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		690C61CC279A5FC6002F43D8 /* WalletViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 690C61CB279A5FC6002F43D8 /* WalletViewModel.swift */; };
+		690CEEF327E376F6005213EB /* BlockChain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 690CEEF227E376F6005213EB /* BlockChain.swift */; };
+		690F622D27E8480E00E2AC8C /* RequestedFriendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 690F622C27E8480E00E2AC8C /* RequestedFriendView.swift */; };
 		69127261277A9EDB0086F60D /* FullTransactionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69127260277A9EDB0086F60D /* FullTransactionView.swift */; };
 		69127264277AF43E0086F60D /* ConfirmationDialogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69127263277AF43E0086F60D /* ConfirmationDialogView.swift */; };
 		69127268277AF6910086F60D /* ChangeAppColorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69127267277AF6910086F60D /* ChangeAppColorView.swift */; };
@@ -22,32 +24,27 @@
 		693DBED22774072A000F6459 /* TransactionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 693DBED12774072A000F6459 /* TransactionsView.swift */; };
 		693DBED427740733000F6459 /* WalletView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 693DBED327740733000F6459 /* WalletView.swift */; };
 		693DBED7277408B3000F6459 /* Block.swift in Sources */ = {isa = PBXBuildFile; fileRef = 693DBED6277408B3000F6459 /* Block.swift */; };
-		693DBED9277408D1000F6459 /* ConfirmedTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 693DBED8277408D1000F6459 /* ConfirmedTransaction.swift */; };
+		693DBED9277408D1000F6459 /* Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 693DBED8277408D1000F6459 /* Transaction.swift */; };
 		693DBEDC277408F9000F6459 /* Date+String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 693DBEDB277408F9000F6459 /* Date+String.swift */; };
-		6942BDA727DF8B1100942E89 /* UnspentTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6942BDA627DF8B1100942E89 /* UnspentTransaction.swift */; };
 		6942BDAB27DFCBC300942E89 /* ReturningPhoneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6942BDAA27DFCBC300942E89 /* ReturningPhoneView.swift */; };
 		694B6FE62795140500DF29EC /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 694B6FE52795140500DF29EC /* User.swift */; };
 		694B6FE827952D3B00DF29EC /* MiningViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 694B6FE727952D3B00DF29EC /* MiningViewModel.swift */; };
+		697C30B027E3A68100614255 /* FirebaseDatabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 697C30AF27E3A68100614255 /* FirebaseDatabaseService.swift */; };
 		699B8D19276F0A4C00C7E630 /* VerifyPhoneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 699B8D18276F0A4B00C7E630 /* VerifyPhoneView.swift */; };
 		699B8D1B276F0A9700C7E630 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 699B8D1A276F0A9700C7E630 /* AppDelegate.swift */; };
 		699B8D1D2770132300C7E630 /* WelcomeScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 699B8D1C2770132300C7E630 /* WelcomeScreenView.swift */; };
 		69A9258C279882EB006056FB /* Friend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69A9258B279882EB006056FB /* Friend.swift */; };
 		69B403E527DABD110025889B /* AuthFirestoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69B403E427DABD110025889B /* AuthFirestoreService.swift */; };
-		69B403E727DABD2E0025889B /* WalletFirestoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69B403E627DABD2E0025889B /* WalletFirestoreService.swift */; };
+		69B403E727DABD2E0025889B /* WalletModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69B403E627DABD2E0025889B /* WalletModels.swift */; };
 		69B403E927DABD490025889B /* TransactionsFirestoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69B403E827DABD490025889B /* TransactionsFirestoreService.swift */; };
 		69B403EB27DABD550025889B /* MiningFirestoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69B403EA27DABD550025889B /* MiningFirestoreService.swift */; };
 		69B403ED27DABD6C0025889B /* SearchFirestoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69B403EC27DABD6C0025889B /* SearchFirestoreService.swift */; };
-		69B403EF27DAD3C40025889B /* RequestedTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69B403EE27DAD3C40025889B /* RequestedTransaction.swift */; };
-		69B403F127DAD45A0025889B /* PendingTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69B403F027DAD45A0025889B /* PendingTransaction.swift */; };
 		69B403F527DAD6ED0025889B /* Int+String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69B403F427DAD6ED0025889B /* Int+String.swift */; };
 		69B403F727DAD7D60025889B /* SearchUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69B403F627DAD7D60025889B /* SearchUser.swift */; };
-		69B403FB27DADA4B0025889B /* BlockHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69B403FA27DADA4B0025889B /* BlockHeader.swift */; };
 		69C0B53627928533006C3DBD /* SendRecieveAntionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69C0B53527928533006C3DBD /* SendRecieveAntionButton.swift */; };
 		69C0B5382794E727006C3DBD /* TransactionsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69C0B5372794E727006C3DBD /* TransactionsViewModel.swift */; };
-		69C8B3C827DD39C900B08EF0 /* MerkleTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69C8B3C727DD39C900B08EF0 /* MerkleTree.swift */; };
 		69CD51F0276E900D00CC1744 /* FirebaseAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69CD51EF276E900D00CC1744 /* FirebaseAuthService.swift */; };
 		69CD51F2276E904100CC1744 /* FirebaseStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69CD51F1276E904100CC1744 /* FirebaseStorageService.swift */; };
-		69CD51F4276E908C00CC1744 /* FirebaseFunctionsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69CD51F3276E908C00CC1744 /* FirebaseFunctionsService.swift */; };
 		69CD51F6276E94F900CC1744 /* CryptoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69CD51F5276E94F900CC1744 /* CryptoService.swift */; };
 		69CD51F9276E963400CC1744 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69CD51F8276E963400CC1744 /* AppViewModel.swift */; };
 		69CD51FB276EA25900CC1744 /* FirebaseFirestoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69CD51FA276EA25900CC1744 /* FirebaseFirestoreService.swift */; };
@@ -85,6 +82,8 @@
 /* Begin PBXFileReference section */
 		01DF58612ED939CFF0F3F138 /* Pods-Antion.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Antion.release.xcconfig"; path = "Target Support Files/Pods-Antion/Pods-Antion.release.xcconfig"; sourceTree = "<group>"; };
 		690C61CB279A5FC6002F43D8 /* WalletViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletViewModel.swift; sourceTree = "<group>"; };
+		690CEEF227E376F6005213EB /* BlockChain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockChain.swift; sourceTree = "<group>"; };
+		690F622C27E8480E00E2AC8C /* RequestedFriendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestedFriendView.swift; sourceTree = "<group>"; };
 		69127260277A9EDB0086F60D /* FullTransactionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullTransactionView.swift; sourceTree = "<group>"; };
 		69127263277AF43E0086F60D /* ConfirmationDialogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmationDialogView.swift; sourceTree = "<group>"; };
 		69127267277AF6910086F60D /* ChangeAppColorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeAppColorView.swift; sourceTree = "<group>"; };
@@ -99,32 +98,27 @@
 		693DBED12774072A000F6459 /* TransactionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionsView.swift; sourceTree = "<group>"; };
 		693DBED327740733000F6459 /* WalletView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletView.swift; sourceTree = "<group>"; };
 		693DBED6277408B3000F6459 /* Block.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Block.swift; sourceTree = "<group>"; };
-		693DBED8277408D1000F6459 /* ConfirmedTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmedTransaction.swift; sourceTree = "<group>"; };
+		693DBED8277408D1000F6459 /* Transaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transaction.swift; sourceTree = "<group>"; };
 		693DBEDB277408F9000F6459 /* Date+String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+String.swift"; sourceTree = "<group>"; };
-		6942BDA627DF8B1100942E89 /* UnspentTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnspentTransaction.swift; sourceTree = "<group>"; };
 		6942BDAA27DFCBC300942E89 /* ReturningPhoneView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReturningPhoneView.swift; sourceTree = "<group>"; };
 		694B6FE52795140500DF29EC /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		694B6FE727952D3B00DF29EC /* MiningViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiningViewModel.swift; sourceTree = "<group>"; };
+		697C30AF27E3A68100614255 /* FirebaseDatabaseService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FirebaseDatabaseService.swift; sourceTree = "<group>"; };
 		699B8D18276F0A4B00C7E630 /* VerifyPhoneView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerifyPhoneView.swift; sourceTree = "<group>"; };
 		699B8D1A276F0A9700C7E630 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		699B8D1C2770132300C7E630 /* WelcomeScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeScreenView.swift; sourceTree = "<group>"; };
 		69A9258B279882EB006056FB /* Friend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Friend.swift; sourceTree = "<group>"; };
 		69B403E427DABD110025889B /* AuthFirestoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthFirestoreService.swift; sourceTree = "<group>"; };
-		69B403E627DABD2E0025889B /* WalletFirestoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletFirestoreService.swift; sourceTree = "<group>"; };
+		69B403E627DABD2E0025889B /* WalletModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletModels.swift; sourceTree = "<group>"; };
 		69B403E827DABD490025889B /* TransactionsFirestoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionsFirestoreService.swift; sourceTree = "<group>"; };
 		69B403EA27DABD550025889B /* MiningFirestoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiningFirestoreService.swift; sourceTree = "<group>"; };
 		69B403EC27DABD6C0025889B /* SearchFirestoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchFirestoreService.swift; sourceTree = "<group>"; };
-		69B403EE27DAD3C40025889B /* RequestedTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestedTransaction.swift; sourceTree = "<group>"; };
-		69B403F027DAD45A0025889B /* PendingTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTransaction.swift; sourceTree = "<group>"; };
 		69B403F427DAD6ED0025889B /* Int+String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Int+String.swift"; sourceTree = "<group>"; };
 		69B403F627DAD7D60025889B /* SearchUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchUser.swift; sourceTree = "<group>"; };
-		69B403FA27DADA4B0025889B /* BlockHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockHeader.swift; sourceTree = "<group>"; };
 		69C0B53527928533006C3DBD /* SendRecieveAntionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendRecieveAntionButton.swift; sourceTree = "<group>"; };
 		69C0B5372794E727006C3DBD /* TransactionsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionsViewModel.swift; sourceTree = "<group>"; };
-		69C8B3C727DD39C900B08EF0 /* MerkleTree.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MerkleTree.swift; sourceTree = "<group>"; };
 		69CD51EF276E900D00CC1744 /* FirebaseAuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseAuthService.swift; sourceTree = "<group>"; };
 		69CD51F1276E904100CC1744 /* FirebaseStorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseStorageService.swift; sourceTree = "<group>"; };
-		69CD51F3276E908C00CC1744 /* FirebaseFunctionsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseFunctionsService.swift; sourceTree = "<group>"; };
 		69CD51F5276E94F900CC1744 /* CryptoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoService.swift; sourceTree = "<group>"; };
 		69CD51F8276E963400CC1744 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
 		69CD51FA276EA25900CC1744 /* FirebaseFirestoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseFirestoreService.swift; sourceTree = "<group>"; };
@@ -194,6 +188,7 @@
 				69DA3C9E27D873E3000424AB /* WalletTransactionsView.swift */,
 				69DA3C9C27D873E3000424AB /* WalletBlocksView.swift */,
 				69DA3C9D27D873E3000424AB /* WalletFriendsView.swift */,
+				690F622C27E8480E00E2AC8C /* RequestedFriendView.swift */,
 				692D4BEF27A09A8600FA7987 /* UserTransactionsView.swift */,
 				692D4BF127A09B1600FA7987 /* UserAcquaintancesView.swift */,
 				69127263277AF43E0086F60D /* ConfirmationDialogView.swift */,
@@ -239,7 +234,7 @@
 			children = (
 				693DBED327740733000F6459 /* WalletView.swift */,
 				690C61CB279A5FC6002F43D8 /* WalletViewModel.swift */,
-				69B403E627DABD2E0025889B /* WalletFirestoreService.swift */,
+				69B403E627DABD2E0025889B /* WalletModels.swift */,
 				69127262277AF4350086F60D /* HelperViews */,
 			);
 			path = Wallet;
@@ -251,13 +246,9 @@
 				694B6FE52795140500DF29EC /* User.swift */,
 				69A9258B279882EB006056FB /* Friend.swift */,
 				69B403F627DAD7D60025889B /* SearchUser.swift */,
-				69B403EE27DAD3C40025889B /* RequestedTransaction.swift */,
-				6942BDA627DF8B1100942E89 /* UnspentTransaction.swift */,
-				69B403F027DAD45A0025889B /* PendingTransaction.swift */,
-				693DBED8277408D1000F6459 /* ConfirmedTransaction.swift */,
+				693DBED8277408D1000F6459 /* Transaction.swift */,
+				690CEEF227E376F6005213EB /* BlockChain.swift */,
 				693DBED6277408B3000F6459 /* Block.swift */,
-				69B403FA27DADA4B0025889B /* BlockHeader.swift */,
-				69C8B3C727DD39C900B08EF0 /* MerkleTree.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -308,8 +299,8 @@
 			children = (
 				69CD51F5276E94F900CC1744 /* CryptoService.swift */,
 				69CD51EF276E900D00CC1744 /* FirebaseAuthService.swift */,
+				697C30AF27E3A68100614255 /* FirebaseDatabaseService.swift */,
 				69CD51FA276EA25900CC1744 /* FirebaseFirestoreService.swift */,
-				69CD51F3276E908C00CC1744 /* FirebaseFunctionsService.swift */,
 				69CD51F1276E904100CC1744 /* FirebaseStorageService.swift */,
 				69E312E927729C1600991FA2 /* KeychainStorage.swift */,
 			);
@@ -543,13 +534,12 @@
 				6930B648277B8AF9005D9CF5 /* FindRecepientView.swift in Sources */,
 				69CD51F2276E904100CC1744 /* FirebaseStorageService.swift in Sources */,
 				69CD51F9276E963400CC1744 /* AppViewModel.swift in Sources */,
-				69CD51F4276E908C00CC1744 /* FirebaseFunctionsService.swift in Sources */,
-				69B403FB27DADA4B0025889B /* BlockHeader.swift in Sources */,
-				69B403E727DABD2E0025889B /* WalletFirestoreService.swift in Sources */,
+				69B403E727DABD2E0025889B /* WalletModels.swift in Sources */,
 				693DBED22774072A000F6459 /* TransactionsView.swift in Sources */,
 				6942BDAB27DFCBC300942E89 /* ReturningPhoneView.swift in Sources */,
 				69D1A78127754B8E00616FE8 /* RawTransactionView.swift in Sources */,
 				69C0B53627928533006C3DBD /* SendRecieveAntionButton.swift in Sources */,
+				697C30B027E3A68100614255 /* FirebaseDatabaseService.swift in Sources */,
 				699B8D1B276F0A9700C7E630 /* AppDelegate.swift in Sources */,
 				69127261277A9EDB0086F60D /* FullTransactionView.swift in Sources */,
 				69B403E927DABD490025889B /* TransactionsFirestoreService.swift in Sources */,
@@ -562,8 +552,9 @@
 				694B6FE62795140500DF29EC /* User.swift in Sources */,
 				694B6FE827952D3B00DF29EC /* MiningViewModel.swift in Sources */,
 				69E8F587276E8B5D0096B070 /* ContentView.swift in Sources */,
-				69B403F127DAD45A0025889B /* PendingTransaction.swift in Sources */,
+				690CEEF327E376F6005213EB /* BlockChain.swift in Sources */,
 				69CD5202276EB10900CC1744 /* SignInView.swift in Sources */,
+				690F622D27E8480E00E2AC8C /* RequestedFriendView.swift in Sources */,
 				69DA3C9927D83C83000424AB /* WalletAddFriendView.swift in Sources */,
 				69B403EB27DABD550025889B /* MiningFirestoreService.swift in Sources */,
 				693DBED0277406A4000F6459 /* MiningView.swift in Sources */,
@@ -572,15 +563,13 @@
 				69DA3C9727D83C5F000424AB /* WalletSendRequestButtonView.swift in Sources */,
 				69D1A78327754B9200616FE8 /* FullBlockView.swift in Sources */,
 				69DA3C9527D81D18000424AB /* WalletHeaderView.swift in Sources */,
-				69C8B3C827DD39C900B08EF0 /* MerkleTree.swift in Sources */,
-				693DBED9277408D1000F6459 /* ConfirmedTransaction.swift in Sources */,
+				693DBED9277408D1000F6459 /* Transaction.swift in Sources */,
 				69D1A7872778387A00616FE8 /* Arrow.swift in Sources */,
 				69DA3C8A27D819D7000424AB /* String+Array.swift in Sources */,
 				69D1A77D27754B7B00616FE8 /* PrettyTransactionView.swift in Sources */,
 				69E8F585276E8B5D0096B070 /* AntionApp.swift in Sources */,
 				69CD51FB276EA25900CC1744 /* FirebaseFirestoreService.swift in Sources */,
 				693DBED427740733000F6459 /* WalletView.swift in Sources */,
-				6942BDA727DF8B1100942E89 /* UnspentTransaction.swift in Sources */,
 				693DBEDC277408F9000F6459 /* Date+String.swift in Sources */,
 				69DFF023279BE955005C0218 /* OtherUserSearchView.swift in Sources */,
 				69DA3C9027D81A13000424AB /* SearchView.swift in Sources */,
@@ -597,7 +586,6 @@
 				69DA3C9F27D873E3000424AB /* WalletBlocksView.swift in Sources */,
 				691DCB1C277D667E005A7820 /* String+Slash.swift in Sources */,
 				69DA3C9127D81A13000424AB /* SearchViewModel.swift in Sources */,
-				69B403EF27DAD3C40025889B /* RequestedTransaction.swift in Sources */,
 				69B403ED27DABD6C0025889B /* SearchFirestoreService.swift in Sources */,
 				69CD51F6276E94F900CC1744 /* CryptoService.swift in Sources */,
 				69B403F727DAD7D60025889B /* SearchUser.swift in Sources */,

@@ -43,6 +43,10 @@ struct ChangeAppColorView: View {
             AppViewModel.shared.accentColorString = "yellow"
             reRenderAlertButton()
         }
+        Button("Black") {
+            AppViewModel.shared.accentColorString = "black"
+            reRenderAlertButton()
+        }
     }
     
     func reRenderAlertButton() {

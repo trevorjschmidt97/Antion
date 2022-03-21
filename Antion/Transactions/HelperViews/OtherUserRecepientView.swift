@@ -9,7 +9,7 @@ import SwiftUI
 
 struct OtherUserRecepientView: View {
     
-    var otherUser: OtherUser
+    var otherUser: Friend
 //    var name: String
 //    var publicKey: String
 //    var profilePicUrl: String?
@@ -17,7 +17,7 @@ struct OtherUserRecepientView: View {
 //    @Binding var otherName: String
 //    @Binding var otherPublicKey: String
 //    @Binding var otherProfilePicUrl: String?
-    @Binding var bindingOtherUser: OtherUser
+    @Binding var bindingOtherUser: Friend
     
     @Binding var showPayRequest: Bool
     @Binding var showProfileView: Bool

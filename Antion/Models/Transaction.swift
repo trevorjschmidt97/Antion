@@ -1,24 +1,40 @@
 //
-//  TransactionProtocol.swift
+//  ConfirmedTransaction.swift
 //  Antion
 //
-//  Created by Trevor Schmidt on 3/10/22.
+//  Created by Trevor Schmidt on 10/1/21.
 //
 
 import Foundation
 
-protocol TransactionProtocol: Identifiable, Codable {
-    var id: String { get set }
+struct Transaction: Identifiable, Codable {
+    var id: String
     
-    var fromPublicKey: String { get set }
-    var fromName: String { get set }
-    var fromProfilePicUrl: String { get set }
+    var fromPublicKey: String
+    var toPublicKey: String
     
-    var toPublicKey: String { get set }
-    var toName: String { get set }
-    var toProfilePicUrl: String { get set }
+    var timeStamp: String
+    var amount: Int
     
-    var amount: Int { get set }
+    var note: String
+    var signature: String
+
+    var formattedAmount: String {
+        amount.formattedAmount()
+    }
     
-    var note: String { get set }
+    init(fromPublicKey: String, fromPrivateKey: String, toPublicKey: String, amount: Int, note: String) {
+        self.id = UUID().uuidString
+        self.fromPublicKey = fromPublicKey
+        self.toPublicKey = toPublicKey
+        self.timeStamp = Date.now.toLongString()
+        self.amount = amount
+        self.note = note
+        self.signature = ""
+        self.signature = CryptoService.signTransaction(transaction: self, privateKeyString: fromPrivateKey) ?? ""
+    }
+
+    func isValidSignature() -> Bool {
+        return CryptoService.isValidSignature(transaction: self)
+    }
 }

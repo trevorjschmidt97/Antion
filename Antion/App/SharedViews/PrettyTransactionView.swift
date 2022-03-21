@@ -9,9 +9,46 @@ import SwiftUI
 
 struct PrettyTransactionView: View {
     
-    var transaction: ConfirmedTransaction
+    var transaction: Transaction
     
     @State private var isShowingFullTransaction = false
+    @State private var showSheet = false
+    
+    var fromName: String {
+        guard transaction.fromPublicKey != "" else { return "Block Reward" }
+        if transaction.fromPublicKey == AppViewModel.shared.publicKey {
+            return AppViewModel.shared.name
+        } else if AppViewModel.shared.user.friendsSet.contains(transaction.fromPublicKey) {
+            return AppViewModel.shared.user.friendsMap[transaction.fromPublicKey]?.name ?? "Anonymous"
+        } else if AppViewModel.shared.user.otherRequestedFriendsSet.contains(transaction.fromPublicKey) {
+            return AppViewModel.shared.user.otherRequestedFriendsMap[transaction.fromPublicKey]?.name ?? "Anonymous"
+        }
+        return "Anonymous"
+    }
+    
+    var toName: String {
+        guard transaction.toPublicKey != "" else { return "Block Reward" }
+        if transaction.toPublicKey == AppViewModel.shared.publicKey {
+            return AppViewModel.shared.name
+        } else if AppViewModel.shared.user.friendsSet.contains(transaction.toPublicKey) {
+            return AppViewModel.shared.user.friendsMap[transaction.toPublicKey]?.name ?? "Anonymous"
+        } else if AppViewModel.shared.user.otherRequestedFriendsSet.contains(transaction.toPublicKey) {
+            return AppViewModel.shared.user.otherRequestedFriendsMap[transaction.toPublicKey]?.name ?? "Anonymous"
+        }
+        return "Anonymous"
+    }
+    
+    var fromProfilePicUrl: String {
+        guard transaction.fromPublicKey != "" else { return "" }
+        if transaction.fromPublicKey == AppViewModel.shared.publicKey {
+            return AppViewModel.shared.profilePicUrl
+        } else if AppViewModel.shared.user.friendsSet.contains(transaction.fromPublicKey) {
+            return AppViewModel.shared.user.friendsMap[transaction.fromPublicKey]?.profilePicUrl ?? ""
+        } else if AppViewModel.shared.user.otherRequestedFriendsSet.contains(transaction.fromPublicKey) {
+            return AppViewModel.shared.user.otherRequestedFriendsMap[transaction.fromPublicKey]?.profilePicUrl ?? ""
+        }
+        return ""
+    }
     
     var fromToText: String {
         var retString = ""
@@ -19,7 +56,7 @@ struct PrettyTransactionView: View {
             if transaction.fromPublicKey == AppViewModel.shared.publicKey {
                 retString += "**You**"
             } else {
-                retString += "**" + transaction.fromName + "**"
+                retString += "**" + fromName + "**"
             }
         } else {
             retString += "**Block Reward**"
@@ -30,7 +67,7 @@ struct PrettyTransactionView: View {
         if transaction.toPublicKey == AppViewModel.shared.publicKey {
             retString += "**You**"
         } else {
-            retString += "**" + transaction.toName + "**"
+            retString += "**" + toName + "**"
         }
         
         
@@ -40,24 +77,27 @@ struct PrettyTransactionView: View {
     var body: some View {
         HStack {
             VStack {
-                ProfilePicView(username: transaction.fromName, profilePicUrl: transaction.fromProfilePicUrl, size: 50)
+                ProfilePicView(username: fromName,
+                               profilePicUrl: fromProfilePicUrl,
+                               size: 50)
                     .padding(.vertical)
-                HStack {
-                    VStack {
-                        Image(systemName: "heart")
-                        Text(transaction.numLikes == 0 ? "" : String(transaction.numLikes))
-                            .font(.caption)
-                        Spacer()
-                    }
-                    VStack {
-                        Image(systemName: "bubble.left")
-                        Text(transaction.numComments == 0 ? "" : String(transaction.numComments))
-                            .font(.caption)
-                        Spacer()
-                    }
-                    
-                }
-                .padding(.leading, -13)
+//                HStack {
+//                    VStack {
+//                        Image(systemName: "heart")
+//                        Text(transaction.amount == 0 ? "" : String(transaction.amount))
+//                            .font(.caption)
+//                        Spacer()
+//                    }
+//                    VStack {
+//                        Image(systemName: "bubble.left")
+//                        Text(transaction.amount == 0 ? "" : String(transaction.amount))
+//                            .font(.caption)
+//                        Spacer()
+//                    }
+//
+//                }
+//                .padding(.leading, -13)
+                Spacer()
             }
             VStack(alignment: .leading) {
                 HStack(alignment: .top) {
@@ -81,6 +121,21 @@ struct PrettyTransactionView: View {
             .padding(.top)
             .padding(.bottom, 3)
         }
+            .onTapGesture {
+                showSheet.toggle()
+            }
+            .sheet(isPresented: $showSheet) {
+                NavigationView {
+                    Text("\(transaction.timeStamp)")
+                        .toolbar {
+                            ToolbarItemGroup(placement: .navigationBarLeading) {
+                                Button("Done") {
+                                    showSheet = false
+                                }
+                            }
+                        }
+                }
+            }
 //        .onTapGesture {
 //            isShowingFullTransaction.toggle()
 //        }

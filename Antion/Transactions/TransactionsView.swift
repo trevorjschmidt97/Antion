@@ -12,30 +12,26 @@ struct TransactionsView: View {
     @StateObject var viewModel = TransactionsViewModel()
     @State private var searchText = ""
     
-    @State private var selectedTransaction: ConfirmedTransaction?
-    @State private var createNewTransaction = false
+    @State private var transactionsSelection = true
     
+    @State private var selectedTransaction: Transaction?
+    @State private var createNewTransaction = false
     var body: some View {
         ZStack {
             // Transactions
-            List {
-                ForEach(viewModel.transactions) { transaction in
-                    Button {
-                        selectedTransaction = transaction
-                    } label: {
+            VStack {
+                Picker("Selection", selection: $transactionsSelection) {
+                    Text("Friends").tag(true)
+                    Text("Worldwide").tag(false)
+                }
+                    .pickerStyle(.segmented)
+                    .padding(.horizontal)
+                List {
+                    ForEach(transactionsSelection ? AppViewModel.shared.blockChain.feedTransactions : AppViewModel.shared.blockChain.allConfirmedTransactions) { transaction in
                         PrettyTransactionView(transaction: transaction)
-                            .foregroundColor(.primary)
                     }
-
                 }
             }
-                .padding(.top, -25)
-                .task {
-                    viewModel.fetchFeedTransactions()
-                }
-                .refreshable {
-                    viewModel.fetchFeedTransactions()
-                }
             
             // Send/Receive Button
             VStack {
@@ -46,6 +42,7 @@ struct TransactionsView: View {
                     SendRecieveAntionButton()
                 }
             }
+            
         }
             .onAppear {
                 viewModel.onAppear()

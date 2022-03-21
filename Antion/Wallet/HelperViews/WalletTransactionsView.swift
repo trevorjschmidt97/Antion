@@ -11,7 +11,6 @@ struct WalletTransactionsView: View {
     
     @ObservedObject var viewModel: WalletViewModel
     
-    var walletState: WalletState
     @State private var isShowingRequestedTransactions = true
     @State private var isShowingPendingTransactions = true
     @State private var isShowingConfirmedTransactions = true
@@ -19,12 +18,13 @@ struct WalletTransactionsView: View {
     var body: some View {
         VStack {
             Text("""
-                 This wallet has a total of **\(viewModel.user.name)** transactions on the blockchain. It has received **\(viewModel.user.name)** antion and sent **\(viewModel.user.name)** antion.
+                 This wallet has a total of **\(AppViewModel.shared.blockChain.numTransactionsOfWallet(address: viewModel.user.publicKey))** transaction\(AppViewModel.shared.blockChain.numTransactionsOfWallet(address: viewModel.user.publicKey) == 1 ? "" : "s") on the blockchain. It has received **\(AppViewModel.shared.blockChain.numReceivedBalance(address: viewModel.user.publicKey).formattedAmount())** antion and sent **\(AppViewModel.shared.blockChain.numSentBalance(address: viewModel.user.publicKey).formattedAmount())** antion.
                  """)
+                .multilineTextAlignment(.center)
                 .padding(.vertical)
                 .padding(.horizontal, 30)
             
-            if walletState == .own {
+            if viewModel.walletState == .own {
                 
                 HStack {
                     Text("Requested Transactions")
@@ -40,6 +40,8 @@ struct WalletTransactionsView: View {
                         isShowingRequestedTransactions.toggle()
                     }
                 }
+                
+                
                 
                 HStack {
                     Text("Pending Transactions")
@@ -59,6 +61,15 @@ struct WalletTransactionsView: View {
                 
             }
             
+            if isShowingPendingTransactions && !AppViewModel.shared.blockChain.pendingTransactions(for: viewModel.user.publicKey).isEmpty {
+                ForEach(AppViewModel.shared.blockChain.pendingTransactions(for: viewModel.user.publicKey)) { transaction in
+                    PrettyTransactionView(transaction: transaction)
+                        .padding(.horizontal)
+                    Divider()
+                        .padding(.leading)
+                }
+            }
+            
             HStack {
                 Text("Confirmed Transactions")
                     .font(.title3)
@@ -72,6 +83,15 @@ struct WalletTransactionsView: View {
             .onTapGesture {
                 withAnimation {
                     isShowingConfirmedTransactions.toggle()
+                }
+            }
+            
+            if isShowingConfirmedTransactions {
+                ForEach(AppViewModel.shared.blockChain.confirmedTransactions(address: viewModel.user.publicKey)) { transaction in
+                    PrettyTransactionView(transaction: transaction)
+                        .padding(.horizontal)
+                    Divider()
+                        .padding(.leading)
                 }
             }
         }

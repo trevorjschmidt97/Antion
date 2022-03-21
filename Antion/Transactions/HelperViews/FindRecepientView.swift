@@ -14,7 +14,7 @@ struct FindRecepientView: View {
     
     @EnvironmentObject var viewModel: TransactionsViewModel
     
-    @State private var otherUser: OtherUser = OtherUser(publicKey: "", name: "", profilePicUrl: "")
+    @State private var otherUser: Friend = Friend(publicKey: "", name: "", profilePicUrl: "")
     
     @State private var searchText = ""
     

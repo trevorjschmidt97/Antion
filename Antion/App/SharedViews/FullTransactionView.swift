@@ -9,7 +9,7 @@ import SwiftUI
 
 struct FullTransactionView: View {
     
-    var transaction: ConfirmedTransaction
+    var transaction: Transaction
     
     var body: some View {
         Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)

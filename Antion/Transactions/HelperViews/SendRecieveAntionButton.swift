@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SendRecieveAntionButton: View {
     
-    private var backgroundColor = AppViewModel.shared.accentColor
+    @EnvironmentObject var appViewModel: AppViewModel
     
     var body: some View {
         Text("Send / Request Antion")
@@ -17,7 +17,7 @@ struct SendRecieveAntionButton: View {
             .font(.headline)
             .fontWeight(.bold)
             .padding()
-            .background(backgroundColor)
+            .background(appViewModel.accentColor)
             .cornerRadius(30)
             .padding()
     }

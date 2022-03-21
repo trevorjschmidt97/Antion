@@ -37,7 +37,7 @@ struct ProfilePicView: View {
                         .overlay(Circle().stroke(.secondary, lineWidth: 2))
                         .frame(width: size, height: size)
                     
-                    Text("\(String(username.first ?? Character("?")))")
+                    Text("\(String(username == "Anonymous" ? "?" : username.first ?? Character("?")))")
                         .font(.title)
                         .foregroundColor(.white)
                         .frame(width: size, height: size)

@@ -35,14 +35,15 @@ struct MiningView: View {
             }
             
             if isShowingMining {
-                Text("You have mined \(appViewModel.user.name) blocks and have received \(appViewModel.user.name) antion as rewards")
+                Text("You have mined \(appViewModel.blockChain.numMinedBlocks(address: appViewModel.user.publicKey)) block\(appViewModel.blockChain.numMinedBlocks(address: appViewModel.user.publicKey) == 1 ? "" : "s") and have received \(appViewModel.blockChain.numReceivedRewards(address: appViewModel.user.publicKey).formattedAmount()) antion as rewards")
                     .padding(30)
+                    .multilineTextAlignment(.center)
                 
                 Button("Start Mining?") {
-                    print("Hello")
+                    appViewModel.startMining(minerPublicKey: "zRgvFk5fj5kmzZboRtoCcVBWXlktYKsNfepv1wrE9JQ=")
                 }
                 .font(.title)
-                .padding()
+                .padding(.bottom)
             }
             
             HStack {
@@ -126,8 +127,8 @@ struct MiningView: View {
             }
             
             if isShowingPendingTransactions {
-                ForEach(viewModel.pendingTransactions) { pendingTransaction in
-                    RawTransactionView(transaction: pendingTransaction)
+                ForEach(appViewModel.blockChain.pendingTransactions) { pendingTransaction in
+                    PrettyTransactionView(transaction: pendingTransaction)
                         .padding(.horizontal)
                     Divider()
                 }

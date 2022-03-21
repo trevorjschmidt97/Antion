@@ -11,58 +11,44 @@ struct SearchView: View {
     
     @StateObject var viewModel = SearchViewModel()
     
-    @State private var selectedUser: SearchUser?
-    
     @State private var searchText = ""
     
-    enum SearchType: String {
-        case name = "name"
-        case publicKey = "public key"
+    var filteredFriends: [Friend] {
+        if searchText.isEmpty {
+            return AppViewModel.shared.user.friends.sorted{ $0.name > $1.name }
+        }
+        return AppViewModel.shared.user.friends.sorted{ $0.name > $1.name }.filter { $0.publicKey.contains(searchText) || $0.name.contains(searchText) }
     }
-    @State private var searchTypeSelection: SearchType = .name
     
     var body: some View {
         List {
-            ForEach(viewModel.searchUsers) { user in
-                Button {
-                    selectedUser = user
-                } label: {
-                    SearchUserView(user: user)
-                }
-                .onAppear {
-                    if let lastUser = viewModel.searchUsers.last, user.publicKey == lastUser.publicKey {
-                        print("Last User \(lastUser.publicKey)")
-                        viewModel.querySearch(keyword: searchText)
-                    }
+            Section("Friends") {
+                ForEach(filteredFriends) { friend in
+                    SearchUserView(user: friend)
                 }
             }
-        }
-        .searchable(text: $searchText, prompt: Text("Find by \(searchTypeSelection.rawValue)"))
-        .onAppear {
-            viewModel.onAppear()
-        }
-        .navigationBarTitle("Search")
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                Picker("Search Type", selection: $searchTypeSelection) {
-                    Text("Name").tag(SearchType.name)
-                    Text("Public Key").tag(SearchType.publicKey)
-                }
-                    .pickerStyle(SegmentedPickerStyle())
-                    .frame(maxWidth: 200)
-            }
-        }
-        .sheet(item: $selectedUser, onDismiss: nil) { user in
-            NavigationView {
-                WalletView(publicKey: user.publicKey, name: user.name, profilePicUrl: user.profilePicUrl)
-                    .toolbar {
-                        ToolbarItemGroup(placement: .navigationBarLeading) {
-                            Button("Done") {
-                                selectedUser = nil
+            .padding(.top, -40)
+            
+            Section("All Users On Antion") {
+                ForEach(viewModel.searchUsers) { user in
+                    SearchUserView(user: Friend(publicKey: user.publicKey, name: "Anonymous", profilePicUrl: ""))
+                        .onAppear {
+                            if let lastUser = viewModel.searchUsers.last, user.publicKey == lastUser.publicKey {
+                                viewModel.nextPage()
                             }
                         }
-                    }
+                        .transition(.move(edge: .bottom))
+                }
+                if viewModel.loadingNextPage {
+                    Text("Loading...")
+                }
             }
+        }
+        .searchable(text: $searchText, prompt: Text("Find others by name or public key"))
+        .navigationBarTitle("Search")
+        .navigationBarTitleDisplayMode(.inline)
+        .onChange(of: searchText) { newValue in
+            viewModel.querySearch(keyword: newValue)
         }
     }
 }

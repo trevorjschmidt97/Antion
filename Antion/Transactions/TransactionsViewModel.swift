@@ -9,27 +9,19 @@ import Foundation
 
 class TransactionsViewModel: ObservableObject {
     
-    @Published var transactions: [ConfirmedTransaction] = []
+    @Published var transactions: [Transaction] = []
     
-    @Published var searchUsers: [OtherUser] = []
+    @Published var searchUsers: [Friend] = []
     
-    @Published var topPeopleUsers: [OtherUser] = []
-    @Published var friends: [OtherUser] = []
-    @Published var otherUsers: [OtherUser] = []
+    @Published var topPeopleUsers: [Friend] = []
+    @Published var friends: [Friend] = []
+    @Published var otherUsers: [Friend] = []
     
     func onAppear() {
         
     }
     
-    @MainActor
-    func fetchFeedTransactions() {
-        guard AppViewModel.shared.publicKey != "" else { return }
-        Task {
-            if let retTransactions = try? await FirebaseFirestoreService.shared.fetchFeedTransactions(forPublicKey: AppViewModel.shared.publicKey) {
-                transactions = retTransactions
-            }
-        }
-    }
+  
     
     func fetchRecepientsForTransaction() {
         FirebaseFirestoreService.shared.fetchRecepientsForTransaction { [weak self] retUsers in
@@ -37,8 +29,8 @@ class TransactionsViewModel: ObservableObject {
         }
     }
     
-    func postTransaction(_ transaction: ConfirmedTransaction) {
-        FirebaseFirestoreService.shared.postPendingTransaction(transaction)
+    func postTransaction(_ transaction: Transaction) {
+//        FirebaseFirestoreService.shared.postPendingTransaction(transaction)
     }
     
 }

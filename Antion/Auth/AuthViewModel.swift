@@ -20,7 +20,7 @@ class AuthViewModel: ObservableObject {
     
     @Published var publicKey = ""
     @Published var privateKey = ""
-    
+ 
     // try to log in with faceId/touchId if possible
     func onAppear() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -30,6 +30,9 @@ class AuthViewModel: ObservableObject {
                     case .success(let privateKey):
                         AppViewModel.shared.privateKey = privateKey
                     case .failure(let error):
+                        if error == .deniedAccess {
+                            AppViewModel.shared.showFailure(title: "Biometrics Denied", message: "Go to settings to allow \(self.biometricType() == .face ? "face-id" : "touch-id")", displayMode: .hud)
+                        }
                         print(error.localizedDescription)
                     }
                 }
@@ -112,8 +115,8 @@ class AuthViewModel: ObservableObject {
     @Published var saveSearchUserLoading = false
     func createNewUser(privateKey: String) {
         guard let publicKey = CryptoService.getPublicKeyString(forPrivateKeyString: privateKey) else { return }
-        let user = User(publicKey: publicKey, phone: phoneNumberInput)
-        let searchUser = SearchUser.searchUser(fromUser: user)
+        let user = User(publicKey: publicKey)
+        let searchUser = SearchUser(publicKey: publicKey)
 
         saveUserLoading = true
         saveSearchUserLoading = true
@@ -159,7 +162,7 @@ class AuthViewModel: ObservableObject {
             guard let publicKey = CryptoService.getPublicKeyString(forPrivateKeyString: privateKey) else {
                 return
             }
-            let user = User(publicKey: publicKey, phone: phoneNumberInput)
+            let user = User(publicKey: publicKey)
             print(user)
         }
         

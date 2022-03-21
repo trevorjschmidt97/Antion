@@ -22,6 +22,10 @@ struct WalletPickerView: View {
         }
             .pickerStyle(.segmented)
             .padding(.horizontal)
+            .onChange(of: pageSelection) { newValue in
+                let generator = UIImpactFeedbackGenerator(style: .light)
+                generator.impactOccurred(intensity: 1.0)
+            }
     }
 }
 

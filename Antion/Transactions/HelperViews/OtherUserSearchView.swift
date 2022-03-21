@@ -9,7 +9,7 @@ import SwiftUI
 
 struct OtherUserSearchView: View {
     
-    var user: OtherUser
+    var user: Friend
     
     var body: some View {
         HStack {

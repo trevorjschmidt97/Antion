@@ -17,7 +17,7 @@ struct CreateTransactionView: View {
     @Environment(\.presentationMode) var presentationMode
     var parent: FindRecepientView
     
-    var otherUser: OtherUser
+    var otherUser: Friend
 
     enum TransactionType {
         case pay
@@ -31,7 +31,7 @@ struct CreateTransactionView: View {
         Int(amountInput.replacingOccurrences(of: ".", with: "").replacingOccurrences(of: "$", with: "")) ?? 0
     }
     var validAmount: Bool {
-        if intAmountInput <= 0 || appViewModel.user.balance < intAmountInput {
+        if intAmountInput <= 0  {
             return false
         }
         return true
@@ -85,10 +85,11 @@ struct CreateTransactionView: View {
                         } else if !validAmount {
                             notEnoughBalanceError.toggle()
                         } else if !isValidSignature {
-                            guard let privateKey = appViewModel.privateKey else {
+                            guard appViewModel.privateKey != "" else {
                                 return
                             }
-                            signature = ConfirmedTransaction.signature(privateKey: privateKey, timeStamp: dateStamp, amount: intAmountInput, fromPublicKey: appViewModel.publicKey, toPublicKey: otherUser.publicKey, note: commentsInput)
+                            signature = ""
+//                            signature = Transaction.signature(privateKey: privateKey, timeStamp: dateStamp, amount: intAmountInput, fromPublicKey: appViewModel.publicKey, toPublicKey: otherUser.publicKey, note: commentsInput)
                             previousAmount = intAmountInput
                             previousComments = commentsInput
                         } else {
@@ -141,7 +142,7 @@ struct CreateTransactionView: View {
                     alert: { AlertToast(displayMode: .alert,
                                         type: .error(.red),
                                         title: "Oops",
-                                        subTitle: "Not enough balance for transaction, you have $\(appViewModel.user.formattedBalance)",
+                                        subTitle: "Not enough balance for transaction, you have $formattedBalance",
                                         style: nil)
                      },
                     onTap: nil,
@@ -356,7 +357,7 @@ struct CreateTransactionView: View {
 struct PayRequestTransactionView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            CreateTransactionView(parent: FindRecepientView(), otherUser: OtherUser(publicKey: "", name: "", profilePicUrl: ""))
+            CreateTransactionView(parent: FindRecepientView(), otherUser: Friend(publicKey: "", name: "", profilePicUrl: ""))
 
         }
         .environmentObject(AppViewModel.shared)
