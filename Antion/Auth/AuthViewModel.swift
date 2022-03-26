@@ -20,7 +20,7 @@ class AuthViewModel: ObservableObject {
     
     @Published var publicKey = ""
     @Published var privateKey = ""
-    
+ 
     // try to log in with faceId/touchId if possible
     func onAppear() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -30,6 +30,9 @@ class AuthViewModel: ObservableObject {
                     case .success(let privateKey):
                         AppViewModel.shared.privateKey = privateKey
                     case .failure(let error):
+                        if error == .deniedAccess {
+                            AppViewModel.shared.showFailure(title: "Biometrics Denied", message: "Go to settings to allow \(self.biometricType() == .face ? "face-id" : "touch-id")", displayMode: .hud)
+                        }
                         print(error.localizedDescription)
                     }
                 }
@@ -88,8 +91,7 @@ class AuthViewModel: ObservableObject {
                 if phoneNumberHasBeenUsed { // If it's been used
                     self.showReturningPhoneView = true
                 } else { // If it hasn't been used, create a new account for them
-                    FirebaseFirestoreService.shared.storePhoneNumber(phoneNumber: self.phoneNumberInput) { [weak self] result in
-                        guard let self = self else { return }
+                    FirebaseFirestoreService.shared.storePhoneNumber(phoneNumber: self.phoneNumberInput) { result in
                         switch result {
                         case .success(let success):
                             self.count = success
@@ -108,22 +110,19 @@ class AuthViewModel: ObservableObject {
         }
     }
     
-    @Published var saveUserLoading = false
-    @Published var saveSearchUserLoading = false
+    @Published var loadingNewUser = true
+    @Published var loadingNewSearchUser = true
     func createNewUser(privateKey: String) {
         guard let publicKey = CryptoService.getPublicKeyString(forPrivateKeyString: privateKey) else { return }
-        let user = User(publicKey: publicKey, phone: phoneNumberInput)
-        let searchUser = SearchUser.searchUser(fromUser: user)
-
-        saveUserLoading = true
-        saveSearchUserLoading = true
+        let user = User(publicKey: publicKey)
+        let searchUser = SearchUser(publicKey: publicKey)
         
         FirebaseFirestoreService.shared.storeNewUser(user: user) { [weak self] result in
             guard let self = self else { return }
             DispatchQueue.main.async {
                 switch result {
                 case .success():
-                    self.saveUserLoading = false
+                    self.loadingNewUser = false
                 case .failure(_):
                     printError()
                 }
@@ -134,7 +133,7 @@ class AuthViewModel: ObservableObject {
             DispatchQueue.main.async {
                 switch result {
                 case .success():
-                    self.saveSearchUserLoading = false
+                    self.loadingNewSearchUser = false
                 case .failure(_):
                     printError()
                 }
@@ -147,6 +146,20 @@ class AuthViewModel: ObservableObject {
         guard let phoneNumberHasBeenUsed = phoneNumberHasBeenUsed else {
             return
         }
+        guard let count = count else {
+            return
+        }
+        var rewardAmount = 5000
+        rewardAmount = Int(Double(rewardAmount) * pow(0.5, floor(Double(count)/100000)))
+        let rewardTransaction = Transaction(id: UUID().uuidString,
+                                            fromPublicKey: "",
+                                            toPublicKey: self.publicKey,
+                                            timeStamp: Date().toLongString(),
+                                            amount: rewardAmount,
+                                            note: "Welcome to Antion",
+                                            signature: "")
+        AppViewModel.shared.postPendingTransaction(transaction: rewardTransaction)
+        
         finalLoading = true
         // Saving private key
         let _ = KeychainStorage.savePrivateKey(privateKey)
@@ -159,7 +172,7 @@ class AuthViewModel: ObservableObject {
             guard let publicKey = CryptoService.getPublicKeyString(forPrivateKeyString: privateKey) else {
                 return
             }
-            let user = User(publicKey: publicKey, phone: phoneNumberInput)
+            let user = User(publicKey: publicKey)
             print(user)
         }
         

@@ -8,13 +8,154 @@
 import SwiftUI
 
 struct FullBlockView: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+    
+    var block: Block
+    @State private var miner: Friend?
+    @State private var previousBlock: Block?
+    
+    @ViewBuilder
+    func timeStamp() -> some View {
+        HStack {
+            Text("TimeStamp:")
+            Spacer()
+            Text("\(block.timeStamp)")
+                .font(.system(.caption, design: .monospaced))
+        }
+        .padding(.top)
+        .padding(.horizontal)
+        Divider()
     }
-}
+    
+    @ViewBuilder
+    func previousHash() -> some View {
+        HStack {
+            Text("Previous Hash:")
+            Spacer()
+            VStack {
+                Text("\(String(block.previousHash.prefix(22)))")
+                Text("\(String(block.previousHash.suffix(22)))")
+            }
+            .font(.system(.caption, design: .monospaced))
+        }
+        .padding(.horizontal)
+            .foregroundColor(.primary)
+            .onTapGesture {
+                previousBlock = AppViewModel.shared.blockChain.block(forHash: block.previousHash)
+            }
+        Divider()
+    }
+    
+    @ViewBuilder
+    func minerView() -> some View {
+        HStack {
+            Text("Miner Public Key:")
+            Spacer()
+            VStack {
+                Text("\(String(block.minerPublicKey.prefix(22)))")
+                Text("\(String(block.minerPublicKey.suffix(22)))")
+            }
+            .font(.system(.caption, design: .monospaced))
+        }
+            .padding(.horizontal)
+            .foregroundColor(.primary)
+            .onTapGesture {
+                miner = Friend(publicKey: block.minerPublicKey, name: "Anonymous", profilePicUrl: "")
+            }
+        Divider()
+    }
+    
+    @ViewBuilder
+    func numberOfTransactions() -> some View {
+        HStack {
+            Text("Number of Transactions:")
+            Spacer()
+            Text("\(block.transactions.count)")
+                .font(.system(.caption, design: .monospaced))
+        }
+            .padding(.horizontal)
+        Divider()
+    }
+    
+    @ViewBuilder
+    func nonce() -> some View {
+        HStack {
+            Text("Nonce:")
+            Spacer()
+            Text("\(block.nonce)")
+                .font(.system(.caption, design: .monospaced))
+        }
+            .padding(.horizontal)
+        Divider()
+    }
+    
+    @ViewBuilder
+    func hash() -> some View {
+        HStack {
+            Text("Hash:")
+            Spacer()
+            VStack {
+                Text("\(String(block.hash.prefix(22)))")
+                Text("\(String(block.hash.suffix(22)))")
+            }
+            .font(.system(.caption, design: .monospaced))
+        }
+            .padding(.horizontal)
+        Divider()
+    }
+    
+    var body: some View {
+        ScrollView(.vertical, showsIndicators: true) {
+            
+            timeStamp()
 
-struct BlockView_Previews: PreviewProvider {
-    static var previews: some View {
-        FullBlockView()
+            previousHash()
+            
+            minerView()
+
+            numberOfTransactions()
+
+            nonce()
+
+            hash()
+            
+            HStack {
+                Text("Transactions:")
+                    .fontWeight(.bold)
+                Spacer()
+            }
+            .padding(.horizontal)
+            
+            ForEach(block.transactions.sorted{ $0.timeStamp > $1.timeStamp }) { transaction in
+                PrettyTransactionView(transaction: transaction, transactionType: .confirmed)
+                    .padding(.horizontal)
+                Divider()
+            }
+        }
+            .navigationTitle("Block: \(block.index)")
+            .navigationBarTitleDisplayMode(.inline)
+            .sheet(item: $previousBlock) { selectedBlock in
+                NavigationView {
+                    FullBlockView(block: selectedBlock)
+                        .toolbar {
+                            ToolbarItemGroup(placement: .navigationBarLeading) {
+                                Button("Done") {
+                                    previousBlock = nil
+                                }
+                            }
+                        }
+                }
+            }
+            .sheet(item: $miner) { minerFriend in
+                NavigationView {
+                    WalletView(publicKey: minerFriend.publicKey, name: minerFriend.name, profilePicUrl: minerFriend.profilePicUrl)
+                        .toolbar {
+                            ToolbarItemGroup(placement: .navigationBarLeading) {
+                                Button("Done") {
+                                    miner = nil
+                                }
+                            }
+                        }
+                }
+            }
     }
 }

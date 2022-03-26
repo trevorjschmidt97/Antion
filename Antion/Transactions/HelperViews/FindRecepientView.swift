@@ -12,82 +12,67 @@ struct FindRecepientView: View {
     @EnvironmentObject var appViewModel: AppViewModel
     @Environment(\.presentationMode) var presentationMode
     
-    @EnvironmentObject var viewModel: TransactionsViewModel
-    
-    @State private var otherUser: OtherUser = OtherUser(publicKey: "", name: "", profilePicUrl: "")
+    @StateObject var viewModel = TransactionsViewModel()
+//    @EnvironmentObject var viewModel: TransactionsViewModel
     
     @State private var searchText = ""
     
-    @State private var showProfileView = false
+    @State private var otherUser: Friend = Friend(publicKey: "", name: "", profilePicUrl: "")
     @State private var showPayRequest = false
     
-    enum SearchType {
-        case name
-        case publicKey
+    var filteredFriends: [Friend] {
+        if searchText.isEmpty {
+            return AppViewModel.shared.user.friends.sorted{ $0.name > $1.name }
+        }
+        return AppViewModel.shared.user.friends.sorted{ $0.name > $1.name }.filter { $0.publicKey.contains(searchText) || $0.name.contains(searchText) }
     }
-    @State private var searchTypeSelection: SearchType = .name
     
     var body: some View {
         VStack {
             
             List {
-                Section("Top People") {
-                    ForEach(viewModel.topPeopleUsers.filter { $0.publicKey != appViewModel.publicKey}) { user in
-                        OtherUserRecepientView(otherUser: user,
-                                               bindingOtherUser: $otherUser,
-                                               showPayRequest: $showPayRequest,
-                                               showProfileView: $showProfileView)
-                    }
-                    
-                }
                 Section("Friends") {
-                   
+                    ForEach(filteredFriends) { friend in
+                        OtherUserRecepientView(otherUser: friend, bindingOtherUser: $otherUser, showPayRequest: $showPayRequest)
+                    }
                 }
                 Section("Other Users on Antion") {
-                    
+                    ForEach(viewModel.searchUsers) { user in
+                        if user.publicKey != appViewModel.user.publicKey && !AppViewModel.shared.user.friendsSet.contains(user.publicKey) {
+                            OtherUserRecepientView(otherUser: Friend(publicKey: user.publicKey, name: "Anonymous", profilePicUrl: ""), bindingOtherUser: $otherUser, showPayRequest: $showPayRequest)
+                                .onAppear {
+                                    if let lastUser = viewModel.searchUsers.last, user.publicKey == lastUser.publicKey {
+                                        viewModel.nextPage()
+                                    }
+                                }
+                        }
+                    }
+                    if viewModel.loadingNextPage {
+                        Text("Loading...")
+                    }
                 }
             }
             
             // Navigation Links
                 // To Create View
             NavigationLink(isActive: $showPayRequest) {
-                CreateTransactionView(parent: self, otherUser: otherUser)
-            } label: {
-                EmptyView()
-            }
-                // to Profile View
-            NavigationLink(isActive: $showProfileView) {
-                WalletView(publicKey: otherUser.publicKey, name: otherUser.name, profilePicUrl: otherUser.profilePicUrl)
+                CreateTransactionView(otherUser: otherUser, timeStamp: Date().toLongString(), parent: self)
             } label: {
                 EmptyView()
             }
         }
-        .searchable(text: $searchText,
-                    placement: .navigationBarDrawer(displayMode: .always),
-                    prompt: searchTypeSelection == .name ? "Search by name" : "Search by public key")
+            .searchable(text: $searchText)
             .navigationTitle("Look Up")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .principal) {
-                    ZStack {
-                        Picker("Search Type", selection: $searchTypeSelection) {
-                            Text("Name").tag(SearchType.name)
-                            Text("Public Key").tag(SearchType.publicKey)
-                        }
-                            .pickerStyle(SegmentedPickerStyle())
-                            .frame(maxWidth: 200)
-                        
-                        HStack {
-                            Button("Cancel") {
-                                presentationMode.wrappedValue.dismiss()
-                            }
-                            Spacer()
-                        }
+                ToolbarItemGroup(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        presentationMode.wrappedValue.dismiss()
                     }
                 }
             }
-            .onAppear {
-                viewModel.fetchRecepientsForTransaction()
+            .onChange(of: searchText) { newValue in
+                viewModel.querySearch(keyword: newValue)
             }
     }
 }

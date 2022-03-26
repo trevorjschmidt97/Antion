@@ -11,12 +11,6 @@ struct PendingTransaction: Codable, Identifiable {
     var id: String
 
     var fromPublicKey: String
-    var fromName: String
-    var fromProfilePicUrl: String
-
-    var toPublicKey: String
-    var toName: String
-    var toProfilePicUrl: String
 
     var timeStamp: String
     var amount: Int
@@ -25,6 +19,4 @@ struct PendingTransaction: Codable, Identifiable {
     
     var signature: String
     
-    var inputs: [UnspentTransaction]
-    var outputs: [UnspentTransaction]
 }

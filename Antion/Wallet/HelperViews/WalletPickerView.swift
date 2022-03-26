@@ -18,10 +18,14 @@ struct WalletPickerView: View {
         Picker("Selection", selection: $pageSelection) {
             Text("Transactions").tag(WalletView.PageSelection.transactions)
             Text("Blocks").tag(WalletView.PageSelection.blocks)
-            Text(friendsString).tag(WalletView.PageSelection.friends)
+            Text("Friends").tag(WalletView.PageSelection.friends)
         }
             .pickerStyle(.segmented)
             .padding(.horizontal)
+            .onChange(of: pageSelection) { newValue in
+                let generator = UIImpactFeedbackGenerator(style: .light)
+                generator.impactOccurred(intensity: 1.0)
+            }
     }
 }
 

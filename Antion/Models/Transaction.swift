@@ -1,24 +1,59 @@
 //
-//  TransactionProtocol.swift
+//  ConfirmedTransaction.swift
 //  Antion
 //
-//  Created by Trevor Schmidt on 3/10/22.
+//  Created by Trevor Schmidt on 10/1/21.
 //
 
 import Foundation
 
-protocol TransactionProtocol: Identifiable, Codable {
-    var id: String { get set }
+struct Transaction: Identifiable, Codable {
+    var id: String
     
-    var fromPublicKey: String { get set }
-    var fromName: String { get set }
-    var fromProfilePicUrl: String { get set }
+    var fromPublicKey: String
+    var toPublicKey: String
     
-    var toPublicKey: String { get set }
-    var toName: String { get set }
-    var toProfilePicUrl: String { get set }
+    var timeStamp: String
+    var amount: Int
     
-    var amount: Int { get set }
+    var note: String
+    var signature: String
+
+    var formattedAmount: String {
+        amount.formattedAmount()
+    }
     
-    var note: String { get set }
+    init(id: String, fromPublicKey: String, toPublicKey: String, timeStamp: String, amount: Int, note: String, signature: String) {
+        self.id = id
+        self.fromPublicKey = fromPublicKey
+        self.toPublicKey = toPublicKey
+        self.timeStamp = timeStamp
+        self.amount = amount
+        self.note = note
+        self.signature = signature
+    }
+    
+    init(fromPublicKey: String, fromPrivateKey: String, toPublicKey: String, amount: Int, note: String, timeStamp: String) {
+        self.id = UUID().uuidString
+        self.fromPublicKey = fromPublicKey
+        self.toPublicKey = toPublicKey
+        self.timeStamp = timeStamp
+        self.amount = amount
+        self.note = note
+        self.signature = ""
+        let cryptoSignature = CryptoService.signTransaction(transaction: self, privateKeyString: fromPrivateKey)
+        self.signature = cryptoSignature ?? ""
+    }
+
+    func isValidSignature() -> Bool {
+        return CryptoService.isValidSignature(transaction: self)
+    }
+}
+struct RequestedTransaction: Identifiable {
+    var transaction: Transaction
+    var requestState: RequestState
+    
+    var id: String {
+        transaction.id
+    }
 }

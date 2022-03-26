@@ -9,15 +9,7 @@ import Foundation
 import CryptoKit
 
 struct CryptoService {
-    static func hash(fromString input: String) -> String {
-        let data = Data(input.utf8)
-        let hash = SHA256.hash(data: data)
-        return hash.map { String(format: "%02hhx", $0) }.joined()
-    }
     
-    static func generatePrivateKey() -> Curve25519.Signing.PrivateKey {
-        return Curve25519.Signing.PrivateKey.init()
-    }
     static func generateKeyPair() -> (String, String) {
         let privateKey = Curve25519.Signing.PrivateKey.init()
         return (privateKey.rawRepresentation.base64EncodedString(), privateKey.publicKey.rawRepresentation.base64EncodedString())
@@ -55,31 +47,23 @@ struct CryptoService {
      Returns nil if can't convert transaction to data, or the signature method throws an error
      Returns a signature(data) if successfully signs transaction data.
     */
-//    static func signTransaction(transaction: Transaction, privateKeyString: String) -> String? {
-//        if let privateKey = generatePrivateKey(fromString: privateKeyString),
-//           let transactionData = Transaction.transactionData(transaction: transaction),
-//           let signatureData = try? privateKey.signature(for: transactionData) {
-//            return signatureData.base64EncodedString()
-//        }
-//        return nil
-//    }
-    
-    static func signInfo(privateKey: String, timeStamp: String, amount: Int, fromPublicKey: String, toPublicKey: String, note: String) -> String {
-        let fullString = timeStamp + String(amount) + fromPublicKey + toPublicKey + note
-        if let privateKey = generatePrivateKey(fromString: privateKey),
-           let transactionData = fullString.data(using: .utf8),
+    static func signTransaction(transaction: Transaction, privateKeyString: String) -> String? {
+        guard transaction.fromPublicKey != "" else { return nil }
+        let transactionString = transaction.timeStamp + String(transaction.amount) + transaction.fromPublicKey + transaction.toPublicKey + transaction.note
+        
+        if let privateKey = generatePrivateKey(fromString: privateKeyString),
+           let transactionData = transactionString.data(using: .utf8),
            let signatureData = try? privateKey.signature(for: transactionData) {
             return signatureData.base64EncodedString()
         }
-        return ""
+        return nil
     }
 
     /**
      Returns false if no signature,  no fromAddress, or can't convert transaction to Data.
      Returns true iff the signature is valid for the address and data.
     */
-    static func isValidSignature(transaction: ConfirmedTransaction) -> Bool {
-        
+    static func isValidSignature(transaction: Transaction) -> Bool {
         let fullString = transaction.timeStamp + String(transaction.amount) + transaction.fromPublicKey + transaction.toPublicKey + transaction.note
         
         let fromAddress = transaction.fromPublicKey
@@ -90,5 +74,37 @@ struct CryptoService {
             return fromPublicKey.isValidSignature(signatureData, for: transactionData)
         }
         return false
+    }
+    
+    static func isValidSignature(transaction: Transaction, signature: String) -> Bool {
+        let transactionString = transaction.timeStamp + String(transaction.amount) + transaction.fromPublicKey + transaction.toPublicKey + transaction.note
+        
+        let fromAddress = transaction.fromPublicKey
+        if let fromPublicKey = CryptoService.generatePublicKey(fromString: fromAddress),
+           let signatureData = Data(base64Encoded: signature),
+           let transactionData = transactionString.data(using: .utf8) {
+            return fromPublicKey.isValidSignature(signatureData, for: transactionData)
+        }
+        return false
+    }
+    
+    static func hash(fromString input: String) -> String {
+        let data = Data(input.utf8)
+        let hash = SHA256.hash(data: data)
+        return hash.map { String(format: "%02hhx", $0) }.joined()
+    }
+    
+    static func hashBlock(_ block: Block) -> String {
+        var blockString = String(block.index)
+        blockString += block.timeStamp
+        blockString += block.previousHash
+        blockString += block.minerPublicKey
+        blockString += String(block.difficulty)
+        blockString += String(block.nonce)
+        blockString += String(block.hash)
+        for transaction in block.transactions {
+            blockString += transaction.id
+        }
+        return hash(fromString: blockString)
     }
 }

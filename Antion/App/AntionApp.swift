@@ -9,7 +9,7 @@ import SwiftUI
 import AlertToast
 
 public func printError(file: String = #file, function: String = #function, line: Int = #line ) {
-    print("Error in\nfile: \(file)\nfunction: \(function)\nline: \(line)")
+    print("Error in file: \n\t\(file)\nfunction: \n\t\(function), line: \(line)")
 }
 
 @main
@@ -31,6 +31,12 @@ struct AntionApp: App {
                 .onAppear {
                     appViewModel.onAppear()
                 }
+                .onChange(of: appViewModel.privateKey, perform: { newValue in
+                    appViewModel.privateKey = newValue
+                    if appViewModel.privateKey != nil {
+                        appViewModel.pullUserInfo()
+                    }
+                })
                 .navigationViewStyle(StackNavigationViewStyle())
                 .tint(AppViewModel.shared.accentColor)
                 .accentColor(AppViewModel.shared.accentColor)
@@ -63,7 +69,7 @@ struct AntionApp: App {
                         },
                        onTap: nil,
                        completion: nil)
-                
+            
         }
     }
 }

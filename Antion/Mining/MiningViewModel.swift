@@ -10,7 +10,7 @@ import Foundation
 class MiningViewModel: ObservableObject {
     
     @Published var blockChain: [Block] = []
-    @Published var pendingTransactions: [ConfirmedTransaction] = []
+    @Published var pendingTransactions: [Transaction] = []
     
     @Published var isMining = false
     
@@ -19,16 +19,16 @@ class MiningViewModel: ObservableObject {
     }
     
     func onAppear() {
-        FirebaseFirestoreService.shared.getPendingTransactions { [weak self] retTransactions in
-            DispatchQueue.main.async {
-                self?.pendingTransactions = retTransactions
-            }
-        }
-        FirebaseFirestoreService.shared.getBlockchain { [weak self] retBlockchain in
-            DispatchQueue.main.async {
-                self?.blockChain = retBlockchain
-            }
-        }
+//        FirebaseFirestoreService.shared.getPendingTransactions { [weak self] retTransactions in
+//            DispatchQueue.main.async {
+//                self?.pendingTransactions = retTransactions
+//            }
+//        }
+//        FirebaseFirestoreService.shared.getBlockchain { [weak self] retBlockchain in
+//            DispatchQueue.main.async {
+//                self?.blockChain = retBlockchain
+//            }
+//        }
     }
     
     func startMiningButtonTapped() {

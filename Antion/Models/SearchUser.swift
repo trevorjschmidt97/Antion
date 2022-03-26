@@ -7,30 +7,20 @@
 
 import Foundation
 
-struct SearchUser: Codable, Identifiable {
+struct SearchUser: Codable, Identifiable, Hashable {
     
     var publicKey: String
-    var name: String
-    var profilePicUrl: String
     var publicKeyLowercased: String
     
     var publicKeyKeywords: [String]
-    var nameKeywords: [String]
     
     var id: String {
         publicKey
     }
     
-    static func searchUser(fromUser user: User) -> SearchUser {
-        
-        let publicKeyKeywords = user.publicKey.keywords()
-        let nameKeywords = user.name.keywords()
-        
-        return SearchUser(publicKey: user.publicKey,
-                   name: user.name,
-                   profilePicUrl: user.profilePicUrl,
-                   publicKeyLowercased: user.publicKey.lowercased(),
-                   publicKeyKeywords: publicKeyKeywords,
-                   nameKeywords: nameKeywords)
+    init(publicKey: String) {
+        self.publicKey = publicKey
+        self.publicKeyLowercased = publicKey.lowercased()
+        self.publicKeyKeywords = publicKey.keywords()
     }
 }

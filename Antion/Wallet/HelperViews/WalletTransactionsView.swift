@@ -11,7 +11,6 @@ struct WalletTransactionsView: View {
     
     @ObservedObject var viewModel: WalletViewModel
     
-    var walletState: WalletState
     @State private var isShowingRequestedTransactions = true
     @State private var isShowingPendingTransactions = true
     @State private var isShowingConfirmedTransactions = true
@@ -19,41 +18,62 @@ struct WalletTransactionsView: View {
     var body: some View {
         VStack {
             Text("""
-                 This wallet has a total of **\(viewModel.user.name)** transactions on the blockchain. It has received **\(viewModel.user.name)** antion and sent **\(viewModel.user.name)** antion.
+                 This wallet has **\(AppViewModel.shared.blockChain.numTransactionsOfWallet(address: viewModel.user.publicKey))** confirmed transaction\(AppViewModel.shared.blockChain.numTransactionsOfWallet(address: viewModel.user.publicKey) == 1 ? "" : "s") on the blockchain. It has received **\(AppViewModel.shared.blockChain.numReceivedBalance(address: viewModel.user.publicKey).formattedAmount())** antion and sent **\(AppViewModel.shared.blockChain.numSentBalance(address: viewModel.user.publicKey).formattedAmount())** antion.
                  """)
+                .multilineTextAlignment(.center)
                 .padding(.vertical)
                 .padding(.horizontal, 30)
             
-            if walletState == .own {
-                
-                HStack {
-                    Text("Requested Transactions")
-                        .font(.title3)
-                        .fontWeight(.bold)
-                    Spacer()
-                    Image(systemName: isShowingRequestedTransactions ? "chevron.down" : "chevron.up")
-                }
-                .font(.headline)
-                .padding(.horizontal)
-                .onTapGesture {
-                    withAnimation {
-                        isShowingRequestedTransactions.toggle()
+            if viewModel.walletState == .own {
+                if viewModel.user.requestedTransactions.count > 0 {
+                    HStack {
+                        Text("Requested Transactions")
+                            .font(.title3)
+                            .fontWeight(.bold)
+                        Spacer()
+                        Image(systemName: isShowingRequestedTransactions ? "chevron.down" : "chevron.up")
+                    }
+                    .font(.headline)
+                    .padding(.horizontal)
+                    .onTapGesture {
+                        withAnimation {
+                            isShowingRequestedTransactions.toggle()
+                        }
+                    }
+                    
+                    if isShowingRequestedTransactions {
+                        ForEach(viewModel.user.requestedTransactions.sorted{ $0.timeStamp > $1.timeStamp }) { reqTransaction in
+                            PrettyTransactionView(transaction: reqTransaction, transactionType: .requested)
+                                .padding(.horizontal)
+                        }
                     }
                 }
                 
-                HStack {
-                    Text("Pending Transactions")
-                        .font(.title3)
-                        .fontWeight(.bold)
-                    Spacer()
-                    Image(systemName: isShowingPendingTransactions ? "chevron.down" : "chevron.up")
-                }
-                .font(.headline)
-                .padding(.horizontal)
-                .padding(.top)
-                .onTapGesture {
-                    withAnimation {
-                        isShowingPendingTransactions.toggle()
+                
+                if AppViewModel.shared.blockChain.selfPendingTransactions.count > 0 {
+                    HStack {
+                        Text("Pending Transactions")
+                            .font(.title3)
+                            .fontWeight(.bold)
+                        Spacer()
+                        Image(systemName: isShowingPendingTransactions ? "chevron.down" : "chevron.up")
+                    }
+                    .font(.headline)
+                    .padding(.horizontal)
+                    .padding(.top)
+                    .onTapGesture {
+                        withAnimation {
+                            isShowingPendingTransactions.toggle()
+                        }
+                    }
+                    
+                    if isShowingPendingTransactions {
+                        ForEach(AppViewModel.shared.blockChain.selfPendingTransactions.sorted{ $0.timeStamp > $1.timeStamp }) { transaction in
+                            PrettyTransactionView(transaction: transaction, transactionType: .pending)
+                                .padding(.horizontal)
+                            Divider()
+                                .padding(.leading)
+                        }
                     }
                 }
                 
@@ -69,9 +89,19 @@ struct WalletTransactionsView: View {
             .font(.headline)
             .padding(.horizontal)
             .padding(.top)
+            .padding(.bottom, isShowingConfirmedTransactions && AppViewModel.shared.blockChain.confirmedTransactions(address: viewModel.user.publicKey).count > 0 ? 0 : 30)
             .onTapGesture {
                 withAnimation {
                     isShowingConfirmedTransactions.toggle()
+                }
+            }
+            
+            if isShowingConfirmedTransactions {
+                ForEach(AppViewModel.shared.blockChain.confirmedTransactions(address: viewModel.user.publicKey).sorted{ $0.timeStamp > $1.timeStamp }) { transaction in
+                    PrettyTransactionView(transaction: transaction, transactionType: .confirmed)
+                        .padding(.horizontal)
+                    Divider()
+                        .padding(.leading)
                 }
             }
         }

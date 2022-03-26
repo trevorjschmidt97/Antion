@@ -7,52 +7,34 @@
 
 import Foundation
 
-struct Block {
+struct Block: Codable, Identifiable, Equatable {
+    var index: Int
+    var timeStamp: String
     
-    var blockHeader: BlockHeader
-    var merkleTree: MerkleTree
-
-}
-
-extension Block: Identifiable {
+    var previousHash: String
+    
+    var minerPublicKey: String
+    
+    var difficulty: Int
+    var nonce: Int
+    var hash: String
+    
+    var transactions: [Transaction]
+    
     var id: String {
-        blockHeader.id
+        hash
     }
-}
-
-extension Block: Equatable {
     static func == (lhs: Block, rhs: Block) -> Bool {
-        lhs.blockHeader.hash == rhs.blockHeader.hash
+        lhs.hash == rhs.hash
     }
 }
 
-let exampleBlock = Block(blockHeader: BlockHeader(index: 0,
-                                                  timeStamp: Date.now.toLongString(),
-                                                  previousHash: "",
-                                                  numTransactions: 1,
-                                                  transactionVolume: 400,
-                                                  minerPublicKey: "x86lakjsdeflkj",
-                                                  merkleRoot: "",
-                                                  difficulty: 0,
-                                                  nonce: 42069,
-                                                  hash: "0000lakdsjflksajdf"),
-                         merkleTree: [
-                            "abcdefgh": [
-                                "abcd": [
-                                    "ab": [
-                                        "a", "b"
-                                    ],
-                                    "cd": [
-                                        "c", "d"
-                                    ]
-                                ],
-                                "efgh": [
-                                    "ef": [
-                                        "e", "f"
-                                    ],
-                                    "gh": [
-                                        "g", "h"
-                                    ]
-                                ]
-                            ]
-                         ])
+
+let exampleBlock = Block(index: 0,
+                         timeStamp: Date.now.toLongString(),
+                         previousHash: "",
+                         minerPublicKey: "x86lakjsdeflkj",
+                         difficulty: 0,
+                         nonce: 42069,
+                         hash: "0000lakdsjflksajdf",
+                         transactions: [])

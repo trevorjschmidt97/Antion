@@ -9,22 +9,27 @@ import SwiftUI
 
 struct WalletSendRequestButtonView: View {
     
+    @Binding var createNewTransaction: Bool
     var backGroundColor = AppViewModel.shared.accentColor
     
     var body: some View {
-        Text("Send/Request Antion")
-            .foregroundColor(.white)
-            .fontWeight(.bold)
-            .padding()
-            .background(backGroundColor)
-            .cornerRadius(30)
-            .padding(.top, -10)
-            .padding(.bottom)
+        Button {
+            createNewTransaction.toggle()
+        } label: {
+            Text("Send/Request Antion")
+                .foregroundColor(.white)
+                .fontWeight(.bold)
+                .padding(12)
+                .background(backGroundColor)
+                .cornerRadius(30)
+                .padding(.top, -15)
+                .padding(.bottom)
+        }
     }
 }
 
-struct WalletSendRequestButtonView_Previews: PreviewProvider {
-    static var previews: some View {
-        WalletSendRequestButtonView()
-    }
-}
+//struct WalletSendRequestButtonView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        WalletSendRequestButtonView()
+//    }
+//}

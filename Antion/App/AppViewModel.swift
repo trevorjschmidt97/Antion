@@ -13,8 +13,10 @@ class AppViewModel: ObservableObject {
     private init() { }
     static let shared = AppViewModel()
     
-    var blockChain: [String:Block] = [:]
-        
+    // MARK: Caching user info
+    @AppStorage("userName") var name = "Anonymous"
+    @AppStorage("userProfilePicUrl") var profilePicUrl = ""
+    
     // MARK: Auth
     @Published var privateKey: String?
     var publicKey: String {
@@ -24,33 +26,250 @@ class AppViewModel: ObservableObject {
     func signOut() {
         name = ""
         profilePicUrl = ""
-        privateKey = nil
         loadingUserInfo = true
+        user = blankUser
+        privateKey = nil
     }
     
     // MARK: UserInfo
-    @Published var loadingUserInfo = true
-    @Published var user: User = exampleUser
-    @AppStorage("userName") var name = "Anonymous"
-    @AppStorage("userProfilePicUrl") var profilePicUrl = ""
+    @Published var user: User = blankUser
+    @Published var blockChain: BlockChain = BlockChain()
     
     // MARK: Database Calls
+    @Published var blockChainLoading = true
+    @Published var pendingTransactionsLoading = true
     func onAppear() {
-        if let udBlockChain = UserDefaults.standard.object(forKey: "blockChain") as? [String:Block] {
-            blockChain = udBlockChain
+        if blockChainLoading {
+            FirebaseDatabaseService.shared.pullBlockChain { [weak self] result in
+                self?.blockChainLoading = false
+                guard let self = self else {
+                    return
+                }
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success(let retBlocks):
+                        self.blockChain.chain = retBlocks
+                    case .failure(let error):
+                        print(error)
+                    }
+                }
+            }
         }
+        
+        if pendingTransactionsLoading {
+            FirebaseDatabaseService.shared.pullPendingTransactions { [weak self] result in
+                guard let self = self else { return }
+                DispatchQueue.main.async {
+                    self.pendingTransactionsLoading = false
+                    switch result {
+                    case .success(let retPendingTransactions):
+                        withAnimation {
+                            self.blockChain.pendingTransactions = retPendingTransactions
+                        }
+                    case .failure(let error):
+                        printError()
+                        print(error.localizedDescription)
+                    }
+                }
+            }
+        }
+        
     }
     
+    @Published var loadingUserInfo = true
+    @Published var loadingSearchUserInfo = true
     func pullUserInfo() {
         guard publicKey != "" else { return }
         FirebaseFirestoreService.shared.fetchUserInfo(publicKey: publicKey.slashToDash()) { [weak self] result in
+            guard let self = self else { return }
             DispatchQueue.main.async {
                 if let result = result {
-                    self?.user = result            
+                    withAnimation {
+                        self.user = result
+                        self.name = result.name
+                        self.profilePicUrl = result.profilePicUrl
+                        self.loadingUserInfo = false
+                        self.loadingSearchUserInfo = false
+                    }
+                } else {
+                    print("No user")
+                    // Save new user
+                    self.user = User(publicKey: self.publicKey)
+                    let newUser = User(publicKey: self.publicKey)
+                    let newSearchUser = SearchUser(publicKey: self.publicKey)
+                    FirebaseFirestoreService.shared.storeNewUser(user: newUser) { result in
+                        DispatchQueue.main.async {
+                            switch result {
+                            case .success(()):
+                                print("New User Created")
+                            case .failure(let error):
+                                print("Failure creating new user: \(error.localizedDescription)")
+                            }
+                            self.loadingUserInfo = false
+                        }
+                    }
+                    FirebaseFirestoreService.shared.storeNewSearchUser(searchUser: newSearchUser) { result in
+                        DispatchQueue.main.async {
+                            switch result {
+                            case .success(()):
+                                print("New SearchUser Created")
+                            case .failure(let error):
+                                print("Failure creating new searchUser: \(error.localizedDescription)")
+                            }
+                            self.loadingSearchUserInfo = false
+                        }
+                    }
                 }
-                self?.loadingUserInfo = false
             }
         }
+    }
+    
+    func fulfillTransaction(requestedTransaction: Transaction, signedTransaction: Transaction) {
+        deleteRequestedTransaction(transaction: requestedTransaction)
+        postPendingTransaction(transaction: signedTransaction)
+    }
+    
+    func postRequestedTransaction(transaction: Transaction) {
+        FirebaseFirestoreService.shared.sendRequestedTransaction(transaction: transaction)
+    }
+    
+    func deleteRequestedTransaction(transaction: Transaction) {
+        FirebaseFirestoreService.shared.deleteRequestedTransaction(transaction: transaction)
+    }
+    
+    func postPendingTransaction(transaction: Transaction) {
+        FirebaseDatabaseService.shared.addPendingTransaction(transaction: transaction)
+        blockChain.pendingTransactions.append(transaction)
+    }
+    
+    // MARK: Blockchain Mining
+    enum CurrentWork {
+        case gatheringTransactions
+        case verifyingTransactions
+        case creatingBlock
+        case miningBlock
+        case publishingBlock
+    }
+    
+    @Published var isMining = false
+    @Published var currentWork: CurrentWork = .gatheringTransactions
+    func startMining() {
+        print("Starting Mining")
+        var index = 0
+        var previousHash = ""
+        var miningReward = 40000
+        var difficulty = 4
+        
+        if let latestBlock = blockChain.latestBlock() {
+            index = latestBlock.index + 1
+            previousHash = latestBlock.hash
+
+            // Mining reward will half every 100000 blocks, starting at 400.00 antion
+            miningReward = Int(Double(miningReward) * pow(0.5, floor(Double(index)/100000)))
+            
+            // Change of difficulty
+            // We are striving for blocks to be published every 5 minutes
+            // This will increase the difficulty in relation to the number of people that are mining
+                // rather, in relation to how fast the blocks are mined
+            // Therefore we use this function
+            // nextDifficulty = (previousDifficulty * 2016 * 5) / (time to mine last 2016 blocks)
+            
+            let week = Int(floor(Double(index)/2016))
+            if week > 0 && blockChain.chain.count >= ((week)*2016) {
+                let firstOfWeekBlock = blockChain.chain[(week-1)*2016]
+                let lastOfWeekBlock = blockChain.chain[((week-1)*2016)+2015]
+                
+                let previousDifficulty = firstOfWeekBlock.difficulty
+                let minutesOfLastWeek = lastOfWeekBlock.timeStamp.longStringToDate().minutes(from: firstOfWeekBlock.timeStamp.longStringToDate())
+                
+                difficulty = (previousDifficulty * 2016 * 5) / minutesOfLastWeek
+            }
+        }
+        
+        // Get pending transactions
+        var pendingTransactionsList = Array(blockChain.pendingTransactions.sorted{ $0.timeStamp < $1.timeStamp }.prefix(4095))
+        
+        currentWork = .verifyingTransactions
+        var userBalances: [String:Int] = [:]
+        for (i, transaction) in pendingTransactionsList.enumerated() {
+            // If rewarded transaction or free transaction
+            if transaction.fromPublicKey == "" {
+                continue
+            }
+            
+            if !transaction.isValidSignature() {
+                let badTransaction = pendingTransactionsList.remove(at: i)
+                print("Transaction: \(badTransaction.id) invalid signature")
+                continue
+            }
+            
+            // Grab the balance if not already
+            if userBalances[transaction.fromPublicKey] == nil {
+                userBalances[transaction.fromPublicKey] = blockChain.getBalanceOfWallet(address: transaction.fromPublicKey)
+            }
+            if userBalances[transaction.toPublicKey] == nil {
+                userBalances[transaction.toPublicKey] = blockChain.getBalanceOfWallet(address: transaction.toPublicKey)
+            }
+            
+            // Check for amount
+            if transaction.amount > userBalances[transaction.fromPublicKey]! {
+                let badTransaction = pendingTransactionsList.remove(at: i)
+                print("Transaction: \(badTransaction.id) not enough balance")
+                continue
+            }
+            
+            // Now update the balances
+            userBalances[transaction.fromPublicKey] = userBalances[transaction.fromPublicKey]! - transaction.amount
+            userBalances[transaction.toPublicKey] = userBalances[transaction.toPublicKey]! + transaction.amount
+        }
+        
+        currentWork = .creatingBlock
+        // Add reward Transaction
+        let rewardTransaction = Transaction(fromPublicKey: "", fromPrivateKey: "", toPublicKey: user.publicKey, amount: miningReward, note: "Mining Reward", timeStamp: Date().toLongString())
+
+        var newBlock = Block(index: index,
+                             timeStamp: Date.now.toLongString(),
+                             previousHash: previousHash,
+                             minerPublicKey: user.publicKey,
+                             difficulty: difficulty,
+                             nonce: 0,
+                             hash: "",
+                             transactions: pendingTransactionsList)
+        
+        newBlock.transactions.append(rewardTransaction)
+        
+        currentWork = .miningBlock
+        // Mine the newBlock
+        isMining = true
+        
+        var timer: DispatchSourceTimer? = nil
+        let queue = DispatchQueue(label: "miningTimer")
+        timer = DispatchSource.makeTimerSource(queue: queue)
+        timer?.schedule(deadline: .now(), repeating: .milliseconds(10))
+        
+        timer?.setEventHandler { [weak self] in
+            guard let self = self else { return }
+            if newBlock.hash.prefix(difficulty) != String(repeating: "0", count: difficulty) && self.isMining {
+                newBlock.nonce += 1
+                newBlock.hash = CryptoService.hashBlock(newBlock)
+            } else if self.isMining {
+                withAnimation {
+                    FirebaseDatabaseService.shared.addBlockToChain(block: newBlock)
+                    for transaction in newBlock.transactions {
+                        FirebaseDatabaseService.shared.removePendingTransaction(transaction)
+                    }
+                    self.blockChain.pendingTransactions.removeAll()
+                }
+                DispatchQueue.main.async {
+                    self.isMining = false
+                }
+                timer?.cancel()
+                timer = nil
+            }
+        }
+        
+        
+        timer?.resume()
     }
     
     // MARK: Color
@@ -70,20 +289,8 @@ class AppViewModel: ObservableObject {
         case "purple": return Color.purple
         case "red": return Color.red
         case "yellow": return Color.yellow
+        case "black": return Color.black
         default: return Color.green
-        }
-    }
-    var accentColorHex: String {
-        switch accentColorString {
-        case "blue": return "#007aff"
-        case "brown": return "#a2845e"
-        case "cyan": return "#32ade6"
-        case "green": return "#34c759"
-        case "orange": return "#ff9500"
-        case "purple": return "#af52de"
-        case "red": return "#ff3b30"
-        case "yellow": return "#ffcc00"
-        default: return "#34c759"
         }
     }
     
@@ -98,28 +305,47 @@ class AppViewModel: ObservableObject {
     @Published var failureMessage: String?
     @Published var failureDisplayMode: AlertToast.DisplayMode = .alert
     
-    func showSuccess(title: String, message: String?, displayMode: AlertToast.DisplayMode) {
-        successTitle = title
-        successMessage = message
-        successShown = true
-        successDisplayMode = displayMode
-        let generator = UINotificationFeedbackGenerator()
-        generator.notificationOccurred(.success)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            self.successShown = false
+    func showSuccess(title: String, message: String?, displayMode: AlertToast.DisplayMode = .hud) {
+        withAnimation {
+            successTitle = title
+            successMessage = message
+            successShown = true
+            successDisplayMode = displayMode
+            let generator = UINotificationFeedbackGenerator()
+            generator.notificationOccurred(.success)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                self.successShown = false
+            }
         }
     }
     
-    func showFailure(title: String, message: String?, displayMode: AlertToast.DisplayMode) {
-        failureTitle = title
-        failureMessage = message
-        failureDisplayMode = displayMode
-        failureShown = true
-        let generator = UINotificationFeedbackGenerator()
-        generator.notificationOccurred(.error)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            self.failureShown = false
+    func showFailure(title: String, message: String?, displayMode: AlertToast.DisplayMode = .alert) {
+        withAnimation {
+            failureTitle = title
+            failureMessage = message
+            failureDisplayMode = displayMode
+            failureShown = true
+            let generator = UINotificationFeedbackGenerator()
+            generator.notificationOccurred(.error)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                self.failureShown = false
+            }
         }
     }
     
 }
+
+//var privateKey: String?// = "SjRQh38G/50ur/Pwjsw4I7YzYE4HzU7E1dyHMxIcvYk="
+//    var accentColorHex: String {
+//        switch accentColorString {
+//        case "blue": return "#007aff"
+//        case "brown": return "#a2845e"
+//        case "cyan": return "#32ade6"
+//        case "green": return "#34c759"
+//        case "orange": return "#ff9500"
+//        case "purple": return "#af52de"
+//        case "red": return "#ff3b30"
+//        case "yellow": return "#ffcc00"
+//        default: return "#34c759"
+//        }
+//    }

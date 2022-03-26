@@ -11,13 +11,12 @@ struct WalletFriendsView: View {
     
     @ObservedObject var viewModel: WalletViewModel
     
-    var walletState: WalletState
     @State private var isShowingRequestedFriends = true
     @State private var isShowingFriends = true
     
     var body: some View {
         VStack {
-            if walletState == .own {
+            if viewModel.walletState == .own && !viewModel.user.requestedFriends.isEmpty {
                 HStack {
                     Text("Friend Requests")
                         .font(.title3)
@@ -27,12 +26,20 @@ struct WalletFriendsView: View {
                 }
                 .font(.headline)
                 .padding(.horizontal)
+                .padding(.bottom)
                 .onTapGesture {
                     withAnimation {
                         isShowingRequestedFriends.toggle()
                     }
                 }
+                
+                if isShowingRequestedFriends {
+                    ForEach(viewModel.user.requestedFriends) { requestedFriend in
+                        RequestedFriendView(viewModel: viewModel, requestedFriend: requestedFriend)
+                    }
+                }
             }
+            
             
             HStack {
                 Text("Friends")
@@ -43,9 +50,18 @@ struct WalletFriendsView: View {
             }
             .font(.headline)
             .padding(.horizontal)
+            .padding(.bottom)
             .onTapGesture {
                 withAnimation {
                     isShowingFriends.toggle()
+                }
+            }
+            
+            if isShowingFriends {
+                ForEach(viewModel.user.friends) { friend in
+                    SearchUserView(user: friend)
+                        .padding(.horizontal)
+                    Divider()
                 }
             }
         }

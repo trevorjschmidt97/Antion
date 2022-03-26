@@ -9,7 +9,6 @@ import SwiftUI
 
 struct MiningView: View {
     
-    @StateObject var viewModel = MiningViewModel()
     @EnvironmentObject var appViewModel: AppViewModel
     
     @State private var isShowingMining = true
@@ -35,14 +34,127 @@ struct MiningView: View {
             }
             
             if isShowingMining {
-                Text("You have mined \(appViewModel.user.name) blocks and have received \(appViewModel.user.name) antion as rewards")
+                Text("You have mined \(appViewModel.blockChain.numMinedBlocks(address: appViewModel.user.publicKey)) block\(appViewModel.blockChain.numMinedBlocks(address: appViewModel.user.publicKey) == 1 ? "" : "s") and have received \(appViewModel.blockChain.numReceivedRewards(address: appViewModel.user.publicKey).formattedAmount()) antion as rewards")
                     .padding(30)
+                    .multilineTextAlignment(.center)
                 
-                Button("Start Mining?") {
-                    print("Hello")
+                if !appViewModel.isMining {
+                    Button("Start Mining?") {
+                        appViewModel.startMining()
+                    }
+                    .font(.title)
+                    .padding(.bottom)
+                } else {
+                    VStack(alignment: .leading) {
+                        HStack {
+                            if appViewModel.currentWork == .gatheringTransactions {
+                                ZStack {
+                                    Image(systemName: "circle.fill")
+                                        .foregroundColor(.gray)
+                                        .font(.title)
+                                    ProgressView()
+                                        .tint(.white)
+                                }
+                            } else {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.title)
+                                    .foregroundColor(.green)
+                            }
+                            Text("Gathering pending transactions")
+                        }
+                            .padding(.bottom)
+                        HStack {
+                            if appViewModel.currentWork == .gatheringTransactions {
+                                Image(systemName: "ellipsis.circle.fill")
+                                    .font(.title)
+                                    .foregroundColor(.gray)
+                            } else if appViewModel.currentWork == .verifyingTransactions {
+                                ZStack {
+                                    Image(systemName: "circle.fill")
+                                        .foregroundColor(.gray)
+                                        .font(.title)
+                                    ProgressView()
+                                        .tint(.white)
+                                }
+                            } else {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.title)
+                                    .foregroundColor(.green)
+                            }
+                            Text("Verifying transactions")
+                        }
+                        .padding(.bottom)
+                        HStack {
+                            if appViewModel.currentWork == .gatheringTransactions || appViewModel.currentWork == .verifyingTransactions {
+                                Image(systemName: "ellipsis.circle.fill")
+                                    .font(.title)
+                                    .foregroundColor(.gray)
+                            } else if appViewModel.currentWork == .creatingBlock {
+                                ZStack {
+                                    Image(systemName: "circle.fill")
+                                        .foregroundColor(.gray)
+                                        .font(.title)
+                                    ProgressView()
+                                        .tint(.white)
+                                }
+                            } else {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.title)
+                                    .foregroundColor(.green)
+                            }
+                            Text("Creating Block")
+                        }
+                        .padding(.bottom)
+                        HStack {
+                            if appViewModel.currentWork == .gatheringTransactions || appViewModel.currentWork == .verifyingTransactions || appViewModel.currentWork == .creatingBlock {
+                                Image(systemName: "ellipsis.circle.fill")
+                                    .font(.title)
+                                    .foregroundColor(.gray)
+                            } else if appViewModel.currentWork == .miningBlock {
+                                ZStack {
+                                    Image(systemName: "circle.fill")
+                                        .foregroundColor(.gray)
+                                        .font(.title)
+                                    ProgressView()
+                                        .tint(.white)
+                                }
+                            } else {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.title)
+                                    .foregroundColor(.green)
+                            }
+                            Text("Mining Block")
+                        }
+                        .padding(.bottom)
+                        HStack {
+                            if appViewModel.currentWork == .gatheringTransactions || appViewModel.currentWork == .verifyingTransactions || appViewModel.currentWork == .creatingBlock || appViewModel.currentWork == .miningBlock{
+                                Image(systemName: "ellipsis.circle.fill")
+                                    .font(.title)
+                                    .foregroundColor(.gray)
+                            } else if appViewModel.currentWork == .publishingBlock {
+                                ZStack {
+                                    Image(systemName: "circle.fill")
+                                        .foregroundColor(.gray)
+                                        .font(.title)
+                                    ProgressView()
+                                        .tint(.white)
+                                }
+                            } else {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.title)
+                                    .foregroundColor(.green)
+                            }
+                            Text("Publishing Block")
+                        }
+                    }
+                    
+                    Button("Stop Mining?") {
+                        appViewModel.isMining = false
+                    }
+                        .font(.title)
+                        .foregroundColor(appViewModel.accentColor)
+                        .padding()
                 }
-                .font(.title)
-                .padding()
             }
             
             HStack {
@@ -65,30 +177,20 @@ struct MiningView: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     ScrollViewReader { reader in
                         HStack {
-                            ForEach(viewModel.blockChain) { block in
+                            ForEach(appViewModel.blockChain.chain) { block in
                                 VStack {
                                     BasicBlockView(block: block)
                                         .clipShape(RoundedRectangle(cornerRadius: 10.0))
                                         .overlay(RoundedRectangle(cornerRadius: 5.0).stroke(.primary, lineWidth: 2))
-                                        .onTapGesture {
-                                            print("Hello")
-                                        }
                                 }
-                                Arrow()
-                                    .frame(width: 50, height: 30)
-                                    .rotationEffect(.degrees(90))
-                            }
-                            Button {
-                                viewModel.startMiningButtonTapped()
-                            } label: {
-                                VStack {
-                                    Text("Start Mining")
-                                    Text("From This Block")
+                                if let latestBlock = appViewModel.blockChain.chain.last, block.hash != latestBlock.hash {
+                                    Arrow()
+                                        .frame(width: 50, height: 30)
+                                        .rotationEffect(.degrees(90))
                                 }
-                                .font(.system(.caption, design: .monospaced))
                             }
                             .onAppear {
-                                if let latestBlock = viewModel.latestBlock {
+                                if let latestBlock = appViewModel.blockChain.latestBlock() {
                                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
                                         withAnimation {
                                             reader.scrollTo(latestBlock.id, anchor: .bottomTrailing)
@@ -96,8 +198,9 @@ struct MiningView: View {
                                     }
                                 }
                             }
-                            .onChange(of: viewModel.blockChain) { newValue in
-                                if let latestBlock = viewModel.latestBlock {
+                            .onChange(of: appViewModel.blockChain.chain) { newValue in
+                                appViewModel.isMining = false // Essential to stop mining when someone else has mined a block
+                                if let latestBlock = newValue.last {
                                     withAnimation {
                                         reader.scrollTo(latestBlock.id, anchor: .bottomTrailing)
                                     }
@@ -126,33 +229,16 @@ struct MiningView: View {
             }
             
             if isShowingPendingTransactions {
-                ForEach(viewModel.pendingTransactions) { pendingTransaction in
-                    RawTransactionView(transaction: pendingTransaction)
+                ForEach(appViewModel.blockChain.pendingTransactions.sorted{ $0.timeStamp > $1.timeStamp }) { pendingTransaction in
+                    PrettyTransactionView(transaction: pendingTransaction, transactionType: .pending)
                         .padding(.horizontal)
                     Divider()
                 }
             }
             
         }
-            .onAppear {
-                viewModel.onAppear()
-            }
             .navigationTitle("BlockChain")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    if viewModel.isMining {
-                        Button("Stop Mining") {
-                            viewModel.isMining = false
-                        }
-                    }
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    if viewModel.isMining {
-                        ProgressView()
-                    }
-                }
-            }
     }
 }
 

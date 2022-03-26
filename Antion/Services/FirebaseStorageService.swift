@@ -19,7 +19,7 @@ struct FirebaseStorageService {
     }
     
     enum StorageError: String, LocalizedError {
-        case noUrl = "No URL"
+        case noUrl
     }
     
     func updateProfilePic(publicKey: String, imageData: Data, completion: @escaping(Result<String,Error>) -> Void) {
