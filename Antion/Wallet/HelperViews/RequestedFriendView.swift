@@ -16,11 +16,11 @@ struct RequestedFriendView: View {
     
     var body: some View {
         HStack {
-            ProfilePicView(username: requestedFriend.friend.name, profilePicUrl: requestedFriend.friend.profilePicUrl, size: 50)
+            ProfilePicView(username: requestedFriend.requestState == .fromOther ? requestedFriend.friend.name : "Anonymous", profilePicUrl: requestedFriend.requestState == .fromOther ? requestedFriend.friend.profilePicUrl : "", size: 50)
             VStack {
                 HStack {
                     VStack(alignment: .leading) {
-                        Text(requestedFriend.friend.name)
+                        Text(requestedFriend.requestState == .fromOther ? requestedFriend.friend.name : "Anonymous")
                             .fontWeight(.bold)
                         Text(" Public Key: ")
                             .font(.system(.footnote, design: .monospaced))
@@ -68,6 +68,9 @@ struct RequestedFriendView: View {
     func selfRequestedButtons() -> some View {
         Button {
             print("Cancel friend request")
+            let selfFriend = Friend(publicKey: AppViewModel.shared.user.publicKey, name: AppViewModel.shared.user.name, profilePicUrl: AppViewModel.shared.user.profilePicUrl)
+            let otherFriend = Friend(publicKey: requestedFriend.friend.publicKey, name: requestedFriend.friend.name, profilePicUrl: requestedFriend.friend.profilePicUrl)
+            viewModel.cancelFriendRequest(selfFriend: selfFriend, otherFriend: otherFriend)
         } label: {
             HStack {
                 Spacer()
@@ -100,6 +103,9 @@ struct RequestedFriendView: View {
         
         Button {
             print("Reject friend request")
+            let selfFriend = Friend(publicKey: AppViewModel.shared.user.publicKey, name: AppViewModel.shared.user.name, profilePicUrl: AppViewModel.shared.user.profilePicUrl)
+            let otherFriend = Friend(publicKey: requestedFriend.friend.publicKey, name: requestedFriend.friend.name, profilePicUrl: requestedFriend.friend.profilePicUrl)
+            viewModel.rejectFriendRequest(selfFriend: selfFriend, otherFriend: otherFriend)
         } label: {
             HStack {
                 Spacer()
@@ -118,6 +124,9 @@ struct RequestedFriendView: View {
         
         Button {
             print("Accept friend request")
+            let selfFriend = Friend(publicKey: AppViewModel.shared.user.publicKey, name: AppViewModel.shared.user.name, profilePicUrl: AppViewModel.shared.user.profilePicUrl)
+            let otherFriend = Friend(publicKey: requestedFriend.friend.publicKey, name: requestedFriend.friend.name, profilePicUrl: requestedFriend.friend.profilePicUrl)
+            viewModel.acceptFriendRequest(selfFriend: selfFriend, otherFriend: otherFriend)
         } label: {
             HStack {
                 Spacer()

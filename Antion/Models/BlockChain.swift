@@ -12,6 +12,35 @@ struct BlockChain {
     var chain: [Block] = []
     var pendingTransactions: [Transaction] = []
     
+    func block(forHash: String) -> Block {
+        for block in chain {
+            if block.hash == forHash {
+                return block
+            }
+        }
+        return chain[0]
+    }
+    
+    var selfPendingTransactions: [Transaction] {
+        var retPendingTransactions: [Transaction] = []
+        for transaction in pendingTransactions {
+            if transaction.fromPublicKey == AppViewModel.shared.publicKey || transaction.toPublicKey == AppViewModel.shared.publicKey {
+                retPendingTransactions.append(transaction)
+            }
+        }
+        return retPendingTransactions
+    }
+    
+    func minedBlocks(forAddress address: String) -> [Block] {
+        var retBlocks: [Block] = []
+        for block in chain {
+            if block.minerPublicKey == address {
+                retBlocks.append(block)
+            }
+        }
+        return retBlocks
+    }
+    
     var feedTransactions: [Transaction] {
         var retTransactions: [Transaction] = []
         for chain in chain {
@@ -30,22 +59,14 @@ struct BlockChain {
     func pendingTransactions(for address: String) -> [Transaction] {
         var retPendingTransactions: [Transaction] = []
         for transaction in pendingTransactions {
-            if transaction.fromPublicKey == address || transaction.toPublicKey == address {
+            if transaction.fromPublicKey == address {
                 retPendingTransactions.append(transaction)
             }
         }
         return retPendingTransactions
     }
     
-    func minedBlocks(forAddress address: String) -> [Block] {
-        var retBlocks: [Block] = []
-        for block in chain {
-            if block.minerPublicKey == address {
-                retBlocks.append(block)
-            }
-        }
-        return retBlocks
-    }
+    
     
     func getBalanceOfWallet(address: String) -> Int {
         var bal = 0
@@ -124,7 +145,7 @@ struct BlockChain {
         
         for block in chain {
             for transaction in block.transactions {
-                if transaction.fromPublicKey == "" && transaction.note == "Mining Reward" {
+                if transaction.fromPublicKey == "" && transaction.note == "Mining Reward" && transaction.toPublicKey == address {
                     count += transaction.amount
                 }
             }
@@ -203,88 +224,3 @@ struct BlockChain {
     }
     
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//    var publishedTransactions: [Transaction] {
-//        // Maybe use a minHeap in the future becuase it has a better BigO for sorting
-//        var publishedTransactions: [Transaction] = []
-//        for block in chain {
-//            for transaction in block.transactions {
-//                publishedTransactions.append(transaction)
-//            }
-//        }
-//
-//        return publishedTransactions.sorted { t1, t2 in
-//            t1.timeStamp.longStringToDate() > t2.timeStamp.longStringToDate()
-//        }
-//    }
-    
-//    func confirmedTransactions(forPrivateKey privateKey: String) -> [Transaction] {
-//        var confirmedTransactions: [Transaction] = []
-//        for block in chain {
-//            for transaction in block.transactions {
-//                if transaction.toAddress == CryptoService.getPublicKeyString(forPrivateKeyString: privateKey) ?? "" ||
-//                    transaction.fromAddress ?? "" == CryptoService.getPublicKeyString(forPrivateKeyString: privateKey) ?? ""
-//                {
-//                    confirmedTransactions.append(transaction)
-//                }
-//            }
-//        }
-//        return confirmedTransactions.sorted { t1, t2 in
-//            t1.timeStamp.longStringToDate() > t2.timeStamp.longStringToDate()
-//        }
-//    }
-
-//    func pendingTransactions(forPrivateKey privateKey: String) -> [Transaction] {
-//        let pendingTransactionsList = Array(pendingTransactions.values) as [Transaction]
-//        return pendingTransactionsList.filter { transaction in
-//            if let fromAddress = transaction.fromAddress {
-//                return fromAddress == CryptoService.getPublicKeyString(forPrivateKeyString: privateKey) ?? ""
-//            }
-//            return false
-//        }
-//    }
-    
-//    mutating func addPendingTransaction(_ transaction: Transaction) {
-//        // No from address
-//        guard let fromAddress = transaction.fromAddress else {
-//            print("no from address")
-//            return
-//        }
-//
-//        // Not enough balance
-//        if transaction.amount > getBalanceOfWallet(address: fromAddress) {
-//            print("not enough balance")
-//            return
-//        }
-//
-//        // Invalid signature
-//        if !CryptoService.isValidSignature(transaction: transaction) {
-//            print("Invalidsignature")
-//            return
-//        }
-//
-//        pendingTransactions[transaction.id] = transaction
-//        FirebaseDatabaseService.shared.addPendingTransaction(transaction: transaction)
-//    }

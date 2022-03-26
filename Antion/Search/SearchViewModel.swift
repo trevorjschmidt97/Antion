@@ -14,7 +14,6 @@ class SearchViewModel: ObservableObject {
     @Published var searchUsers: [SearchUser] = []
     var lastSearchDoc: DocumentSnapshot?
     var lastKeyword = ""
-    var moreDocuments = true
     
     init() {
         querySearch(keyword: "")
@@ -38,7 +37,7 @@ class SearchViewModel: ObservableObject {
                 case .failure(let error):
                     if let firestoreError = error as? FirebaseFirestoreService.FirestoreError {
                         if firestoreError == .NoDocuments {
-                            self?.moreDocuments = false
+                            print("No More Documents")
                         } else {
                             print(firestoreError)
                         }
@@ -55,24 +54,22 @@ class SearchViewModel: ObservableObject {
         loadingNextPage = true
         FirebaseFirestoreService.shared.searchUsers(keyword: lastKeyword.lowercased(), lastDoc: lastSearchDoc) { [weak self] result in
             DispatchQueue.main.async {
-//                withAnimation {
-                    self?.loadingNextPage = false
-                    switch result {
-                    case .success((let retSearchUsers, let retLastDoc)):
-                        for searchUser in retSearchUsers {
-                            self?.searchUsers.append(searchUser)
-                        }
-                        self?.lastSearchDoc = retLastDoc
-                    case .failure(let error):
-                        if let firebaseError = error as? FirebaseFirestoreService.FirestoreError {
-                            if firebaseError == .NoDocuments {
-                                print("No more documents")
-                            }
-                        } else {
-                            print(error.localizedDescription)
-                        }
+                self?.loadingNextPage = false
+                switch result {
+                case .success((let retSearchUsers, let retLastDoc)):
+                    for searchUser in retSearchUsers {
+                        self?.searchUsers.append(searchUser)
                     }
-//                }
+                    self?.lastSearchDoc = retLastDoc
+                case .failure(let error):
+                    if let firebaseError = error as? FirebaseFirestoreService.FirestoreError {
+                        if firebaseError == .NoDocuments {
+                            print("No more documents")
+                        }
+                    } else {
+                        print(error.localizedDescription)
+                    }
+                }
             }
         }
     }

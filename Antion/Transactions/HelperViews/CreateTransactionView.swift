@@ -12,44 +12,55 @@ import AlertToast
 struct CreateTransactionView: View {
     
     @EnvironmentObject var appViewModel: AppViewModel
-    @EnvironmentObject var viewModel: TransactionsViewModel
-    
     @Environment(\.presentationMode) var presentationMode
-    var parent: FindRecepientView
-    
     var otherUser: Friend
 
-    enum TransactionType {
-        case pay
-        case request
-    }
     @State private var transactionType: TransactionType = .pay
     
-    var dateStamp = Date.now.toLongString()
+    var timeStamp: String
+    var parent: FindRecepientView?
+    
     @State private var amountInput = ""
+    @State private var commentsInput = ""
+    @State private var signature = ""
+    
+    @FocusState private var focus: String?
+    
     var intAmountInput: Int {
-        Int(amountInput.replacingOccurrences(of: ".", with: "").replacingOccurrences(of: "$", with: "")) ?? 0
+        Int(amountInput
+            .replacingOccurrences(of: ".", with: "")
+            .replacingOccurrences(of: "A", with: "")
+            .replacingOccurrences(of: " ", with: "")) ?? 0
     }
     var validAmount: Bool {
         if intAmountInput <= 0  {
             return false
         }
+        if intAmountInput > appViewModel.blockChain.getBalanceOfWallet(address: appViewModel.user.publicKey) {
+            return false
+        }
         return true
     }
-    @State private var commentsInput = ""
-    @State private var signature = ""
-    @State private var previousAmount = 0
-    @State private var previousComments = ""
-    
-    @FocusState private var focus: String?
-    @State private var invalidAmountError = false
-    @State private var notEnoughBalanceError = false
-    
     var isValidSignature: Bool {
         if signature.isEmpty { return false }
-        if commentsInput != previousComments { return false }
-        if previousAmount != intAmountInput { return false }
-        return true
+        guard let transaction = transaction else { return false }
+        
+        let transactionSignature = transaction.signature
+        guard let privateKey = appViewModel.privateKey else { return false }
+        
+        let newTransaction = Transaction(fromPublicKey: appViewModel.publicKey, fromPrivateKey: privateKey, toPublicKey: otherUser.publicKey, amount: intAmountInput, note: commentsInput, timeStamp: timeStamp)
+        
+        return CryptoService.isValidSignature(transaction: newTransaction, signature: transactionSignature)
+    }
+    
+    @State private var invalidAmountError = false
+    @State private var notEnoughBalanceError = false
+    @State private var noCommentsError = false
+    
+    @State private var transaction: Transaction?
+    
+    var canSendRequest: Bool {
+        intAmountInput > 0 && !commentsInput.isEmpty
     }
     
     var body: some View {
@@ -84,27 +95,32 @@ struct CreateTransactionView: View {
                             invalidAmountError.toggle()
                         } else if !validAmount {
                             notEnoughBalanceError.toggle()
+                        } else if commentsInput.isEmpty {
+                            noCommentsError.toggle()
+                        } else if signature == "" {
+                            // Create the transaction
+                            guard let privateKey = appViewModel.privateKey else { return }
+                            
+                            let createTransaction = Transaction(fromPublicKey: appViewModel.user.publicKey, fromPrivateKey: privateKey, toPublicKey: otherUser.publicKey, amount: intAmountInput, note: commentsInput, timeStamp: timeStamp)
+                            
+                            signature = createTransaction.signature
+                            transaction = createTransaction
+                            
                         } else if !isValidSignature {
-                            guard appViewModel.privateKey != "" else {
+                            // Create a new transaction to check if valid
+                            guard let privateKey = appViewModel.privateKey else { return }
+                            let createTransaction = Transaction(fromPublicKey: appViewModel.user.publicKey, fromPrivateKey: privateKey, toPublicKey: otherUser.publicKey, amount: intAmountInput, note: commentsInput, timeStamp: timeStamp)
+                            signature = createTransaction.signature
+                            transaction = createTransaction
+                        } else {
+                            guard let transaction = transaction else {
                                 return
                             }
-                            signature = ""
-//                            signature = Transaction.signature(privateKey: privateKey, timeStamp: dateStamp, amount: intAmountInput, fromPublicKey: appViewModel.publicKey, toPublicKey: otherUser.publicKey, note: commentsInput)
-                            previousAmount = intAmountInput
-                            previousComments = commentsInput
-                        } else {
-//                            let transaction = ConfirmedTransaction(timeStamp: dateStamp,
-//                                                          amount: intAmountInput,
-//                                                          fromPublicKey: appViewModel.user.publicKey,
-//                                                          toPublicKey: otherUser.publicKey,
-//                                                          note: commentsInput,
-//                                                          signature: signature,
-//                                                          fromName: appViewModel.user.name,
-//                                                          toName: otherUser.name,
-//                                                          fromProfilePicUrl: appViewModel.user.profilePicUrl)
-//                            viewModel.postTransaction(transaction)
+                            appViewModel.postPendingTransaction(transaction: transaction)
                             presentationMode.wrappedValue.dismiss()
-                            parent.presentationMode.wrappedValue.dismiss()
+                            if let parent = parent {
+                                parent.presentationMode.wrappedValue.dismiss()
+                            }
                         }
                     } label: {
                         HStack {
@@ -142,7 +158,19 @@ struct CreateTransactionView: View {
                     alert: { AlertToast(displayMode: .alert,
                                         type: .error(.red),
                                         title: "Oops",
-                                        subTitle: "Not enough balance for transaction, you have $formattedBalance",
+                                        subTitle: "Not enough balance for transaction, you have \(appViewModel.blockChain.getBalanceOfWallet(address: appViewModel.publicKey).formattedAmount()) antion",
+                                        style: nil)
+                     },
+                    onTap: nil,
+                    completion: nil)
+            .toast(isPresenting: $noCommentsError,
+                   duration: 2.0,
+                    tapToDismiss: true,
+                    offsetY: 0.0,
+                    alert: { AlertToast(displayMode: .alert,
+                                        type: .error(.red),
+                                        title: "Oops",
+                                        subTitle: "You must include comments on your transaction",
                                         style: nil)
                      },
                     onTap: nil,
@@ -166,7 +194,7 @@ struct CreateTransactionView: View {
             HStack {
                 Text("**DateStamp:**")
                 Spacer()
-                Text("\(dateStamp)")
+                Text("\(timeStamp)")
             }
                 .padding(.top)
                 .padding(.horizontal)
@@ -208,16 +236,16 @@ struct CreateTransactionView: View {
                 .fontWeight(.bold)
             Spacer()
             
-            TextField("Amount", text: $amountInput, prompt: Text("$"))
+            TextField("Amount", text: $amountInput, prompt: Text("A"))
                 .onReceive(Just(amountInput)) { newValue in
                     var filtered = newValue.filter { "0123456789".contains($0) }
                     filtered = filtered.replacingOccurrences(of: "^0+", with: "", options: .regularExpression)
                     if filtered.count == 1 {
-                        filtered = "$0.0" + filtered
+                        filtered = "A 0.0" + filtered
                     } else if filtered.count == 2 {
-                        filtered = "$0." + filtered
+                        filtered = "A 0." + filtered
                     } else if filtered.count > 2 {
-                        filtered = "$" + filtered.prefix(filtered.count-2) + "." + filtered.suffix(2)
+                        filtered = "A " + filtered.prefix(filtered.count-2) + "." + filtered.suffix(2)
                     }
                     if filtered != newValue {
                         amountInput = filtered
@@ -237,14 +265,20 @@ struct CreateTransactionView: View {
     func noteView() -> some View {
         Group {
             HStack {
-                Text("Note:")
+                Text("Comments:")
                     .fontWeight(.bold)
                 Spacer()
             }
-            TextField("Note", text: $commentsInput, prompt: Text("Optional"))
+            ZStack {
+                TextEditor(text: $commentsInput)
                     .multilineTextAlignment(.leading)
-                    .focused($focus, equals: "note")
-                    .padding(.bottom, 30)
+                    .focused($focus, equals: "Comments")
+                Text(commentsInput).opacity(0).padding(.all, 8)
+            }
+//            TextField("Comments", text: $commentsInput, prompt: Text("Comments"))
+//                    .multilineTextAlignment(.leading)
+//                    .focused($focus, equals: "Comments")
+//                    .padding(.bottom, 30)
         }
         .padding(.horizontal)
     }
@@ -291,14 +325,19 @@ struct CreateTransactionView: View {
             HStack {
                 Button("Cancel") {
                     presentationMode.wrappedValue.dismiss()
-                    parent.presentationMode.wrappedValue.dismiss()
                 }
                 Spacer()
                 if transactionType == .request {
                     Button("Send") {
+                        let newRequestedTransaction = Transaction(id: UUID().uuidString, fromPublicKey: otherUser.publicKey, toPublicKey: appViewModel.user.publicKey, timeStamp: timeStamp, amount: intAmountInput, note: commentsInput, signature: "")
+                        
+                        appViewModel.postRequestedTransaction(transaction: newRequestedTransaction)
                         presentationMode.wrappedValue.dismiss()
-                        parent.presentationMode.wrappedValue.dismiss()
+                        if let parent = parent {
+                            parent.presentationMode.wrappedValue.dismiss()
+                        }
                     }
+                        .disabled(!canSendRequest)
                 }
             }
         }
@@ -351,15 +390,18 @@ struct CreateTransactionView: View {
                            size: 55)
         }
     }
-
-}
-
-struct PayRequestTransactionView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            CreateTransactionView(parent: FindRecepientView(), otherUser: Friend(publicKey: "", name: "", profilePicUrl: ""))
-
-        }
-        .environmentObject(AppViewModel.shared)
+    enum TransactionType {
+        case pay
+        case request
     }
 }
+
+//struct PayRequestTransactionView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        NavigationView {
+//            CreateTransactionView(otherUser: Friend(publicKey: "", name: "", profilePicUrl: ""))
+//
+//        }
+//        .environmentObject(AppViewModel.shared)
+//    }
+//}

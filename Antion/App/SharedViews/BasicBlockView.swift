@@ -11,9 +11,11 @@ struct BasicBlockView: View {
     
     var block: Block
     
+    @State private var showFullBlockView = false
+    
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Block:   \(block.id)")
+            Text("Block:   \(block.index)")
                 .padding(.bottom, 3)
 
             HStack {
@@ -58,6 +60,21 @@ struct BasicBlockView: View {
         }
             .padding()
             .font(.system(.caption, design: .monospaced))
+            .onTapGesture {
+                showFullBlockView = true
+            }
+            .sheet(isPresented: $showFullBlockView) {
+                NavigationView {
+                    FullBlockView(block: block)
+                        .toolbar {
+                            ToolbarItemGroup(placement: .navigationBarLeading) {
+                                Button("Done") {
+                                    showFullBlockView = false
+                                }
+                            }
+                        }
+                }
+            }
     }
 }
 

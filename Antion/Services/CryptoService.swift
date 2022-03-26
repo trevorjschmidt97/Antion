@@ -50,9 +50,9 @@ struct CryptoService {
     static func signTransaction(transaction: Transaction, privateKeyString: String) -> String? {
         guard transaction.fromPublicKey != "" else { return nil }
         let transactionString = transaction.timeStamp + String(transaction.amount) + transaction.fromPublicKey + transaction.toPublicKey + transaction.note
-
+        
         if let privateKey = generatePrivateKey(fromString: privateKeyString),
-           let transactionData = Data(base64Encoded: transactionString),
+           let transactionData = transactionString.data(using: .utf8),
            let signatureData = try? privateKey.signature(for: transactionData) {
             return signatureData.base64EncodedString()
         }
@@ -71,6 +71,18 @@ struct CryptoService {
         if let fromPublicKey = CryptoService.generatePublicKey(fromString: fromAddress),
            let signatureData = Data(base64Encoded: signature),
            let transactionData = fullString.data(using: .utf8) {
+            return fromPublicKey.isValidSignature(signatureData, for: transactionData)
+        }
+        return false
+    }
+    
+    static func isValidSignature(transaction: Transaction, signature: String) -> Bool {
+        let transactionString = transaction.timeStamp + String(transaction.amount) + transaction.fromPublicKey + transaction.toPublicKey + transaction.note
+        
+        let fromAddress = transaction.fromPublicKey
+        if let fromPublicKey = CryptoService.generatePublicKey(fromString: fromAddress),
+           let signatureData = Data(base64Encoded: signature),
+           let transactionData = transactionString.data(using: .utf8) {
             return fromPublicKey.isValidSignature(signatureData, for: transactionData)
         }
         return false

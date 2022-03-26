@@ -10,11 +10,9 @@ import SwiftUI
 struct ContentView: View {
     
     @EnvironmentObject var appViewModel: AppViewModel
-    
-    @State private var showExampleWallet = true
-    
+        
     var body: some View {
-        if appViewModel.privateKey != nil {
+        if appViewModel.privateKey != nil, !appViewModel.loadingUserInfo, !appViewModel.loadingSearchUserInfo {
             ZStack {
                 TabView {
                     NavigationView {
@@ -60,7 +58,10 @@ struct ContentView: View {
                         }
                 }
                 
-                if appViewModel.loadingUserInfo || appViewModel.loadingSearchUserInfo {
+                if appViewModel.loadingUserInfo ||
+                    appViewModel.loadingSearchUserInfo ||
+                    appViewModel.blockChainLoading ||
+                    appViewModel.pendingTransactionsLoading {
                     ZStack {
                         Color(.white)
                             .opacity(0.3)
@@ -75,26 +76,11 @@ struct ContentView: View {
                     }
                 }
             }
-                .onAppear {
-                    appViewModel.pullUserInfo()
-                }
-//                .sheet(isPresented: $showExampleWallet) {
-//                    NavigationView {
-//                        WalletView(publicKey: "06Gloj0KJ2K24NiSxuqToPCjQckLdAf1O1q3Y6HIpvk=", name: "Anonymous", profilePicUrl: "")
-//                    }
-//                }
-                
-            
         } else {
             NavigationView {
                     SignUpView()
             }
                 .environmentObject(AuthViewModel())
-//                .onAppear {
-//                    
-//                    showExampleWallet = true
-//                    appViewModel.privateKey = "bNR+kZFojI4RjJSHr0zMJOSz56hDQSN1XmTI4R2zhvc="
-//                }
         }
     }
 }

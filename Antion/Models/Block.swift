@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Block: Codable {
+struct Block: Codable, Identifiable, Equatable {
     var index: Int
     var timeStamp: String
     
@@ -21,19 +21,14 @@ struct Block: Codable {
     
     var transactions: [Transaction]
     
-}
-
-extension Block: Identifiable {
     var id: String {
         hash
     }
-}
-
-extension Block: Equatable {
     static func == (lhs: Block, rhs: Block) -> Bool {
         lhs.hash == rhs.hash
     }
 }
+
 
 let exampleBlock = Block(index: 0,
                          timeStamp: Date.now.toLongString(),

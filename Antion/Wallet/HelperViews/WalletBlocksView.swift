@@ -49,6 +49,9 @@ struct WalletBlocksView: View {
                 } else {
                     ForEach(blocks) { block in
                         BasicBlockView(block: block)
+                            .clipShape(RoundedRectangle(cornerRadius: 10.0))
+                            .overlay(RoundedRectangle(cornerRadius: 5.0).stroke(.primary, lineWidth: 2))
+                            .padding(.horizontal)
                         Divider()
                     }
                 }

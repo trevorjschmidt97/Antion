@@ -14,13 +14,19 @@ struct WalletHeaderView: View {
     @Binding var settingsButtonSelected: Bool
     @Binding var showCopied: Bool
     
+    @State private var showOptionsConfirmationDialog = false
+    
     var appColor = AppViewModel.shared.accentColor
+    
+    var showPrivate: Bool {
+        viewModel.walletState == .own || viewModel.walletState == .friends || viewModel.walletState == .otherRequested
+    }
     
     var body: some View {
         HStack {
-            ProfilePicView(username: viewModel.user.name, profilePicUrl: viewModel.user.profilePicUrl, size: 80)
+            ProfilePicView(username:showPrivate ? viewModel.user.name : "Anonymous", profilePicUrl:showPrivate ? viewModel.user.profilePicUrl : "", size: 80)
             VStack(alignment: .leading) {
-                Text(viewModel.user.name)
+                Text(showPrivate ? viewModel.user.name : "Anonymous")
                     .font(.title3)
                     .fontWeight(.bold)
                 
@@ -42,6 +48,7 @@ struct WalletHeaderView: View {
                 generator.notificationOccurred(.success)
             } label: {
                 Image(systemName: "doc.on.clipboard")
+                    .font(.headline)
             }
                 .foregroundColor(appColor)
             
@@ -50,13 +57,61 @@ struct WalletHeaderView: View {
                     settingsButtonSelected.toggle()
                 } label: {
                     Image(systemName: "gearshape")
+                        .font(.headline)
                 }
                     .foregroundColor(appColor)
+            } else {
+                Button {
+                    showOptionsConfirmationDialog.toggle()
+                } label: {
+                    Image(systemName: viewModel.walletState.imageName)
+                        .font(.headline)
+                }
+                .foregroundColor(appColor)
             }
 
             
         }
         .padding(.horizontal)
+        .confirmationDialog("", isPresented: $showOptionsConfirmationDialog) {
+            Group {
+                switch viewModel.walletState {
+                case .own:
+                    EmptyView()
+                case .friends:
+                    Button("Unfriend \(viewModel.user.name)") {
+                        let selfFriend = Friend(publicKey: AppViewModel.shared.user.publicKey, name: AppViewModel.shared.user.name, profilePicUrl: AppViewModel.shared.user.profilePicUrl)
+                        let otherFriend = Friend(publicKey: viewModel.user.publicKey, name: viewModel.user.name, profilePicUrl: viewModel.user.profilePicUrl)
+                        viewModel.unfriend(selfFriend: selfFriend, otherFriend: otherFriend)
+                    }
+                case .selfRequested:
+                    Button("Cancel Friend Request?") {
+                        let selfFriend = Friend(publicKey: AppViewModel.shared.user.publicKey, name: AppViewModel.shared.user.name, profilePicUrl: AppViewModel.shared.user.profilePicUrl)
+                        let otherFriend = Friend(publicKey: viewModel.user.publicKey, name: viewModel.user.name, profilePicUrl: viewModel.user.profilePicUrl)
+                        viewModel.cancelFriendRequest(selfFriend: selfFriend, otherFriend: otherFriend)
+                    }
+                case .otherRequested:
+                    Button("Accept Friend Request?") {
+                        let selfFriend = Friend(publicKey: AppViewModel.shared.user.publicKey, name: AppViewModel.shared.user.name, profilePicUrl: AppViewModel.shared.user.profilePicUrl)
+                        let otherFriend = Friend(publicKey: viewModel.user.publicKey, name: viewModel.user.name, profilePicUrl: viewModel.user.profilePicUrl)
+                        viewModel.acceptFriendRequest(selfFriend: selfFriend, otherFriend: otherFriend)
+                    }
+                    Button("Reject Friend Request?") {
+                        let selfFriend = Friend(publicKey: AppViewModel.shared.user.publicKey, name: AppViewModel.shared.user.name, profilePicUrl: AppViewModel.shared.user.profilePicUrl)
+                        let otherFriend = Friend(publicKey: viewModel.user.publicKey, name: viewModel.user.name, profilePicUrl: viewModel.user.profilePicUrl)
+                        viewModel.rejectFriendRequest(selfFriend: selfFriend, otherFriend: otherFriend)
+                    }
+                case .stranger:
+                    Button("Send Friend Request?") {
+                        viewModel.sendFriendRequest()
+                    }
+                }
+                
+                Button("Cancel", role: .cancel) {}
+            }
+                .accentColor(AppViewModel.shared.accentColor)
+                .tint(AppViewModel.shared.accentColor)
+        }
     }
 }
 

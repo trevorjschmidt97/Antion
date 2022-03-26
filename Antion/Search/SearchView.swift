@@ -22,33 +22,38 @@ struct SearchView: View {
     
     var body: some View {
         List {
-            Section("Friends") {
+            Section("Your Friends") {
                 ForEach(filteredFriends) { friend in
                     SearchUserView(user: friend)
                 }
             }
-            .padding(.top, -40)
             
             Section("All Users On Antion") {
                 ForEach(viewModel.searchUsers) { user in
-                    SearchUserView(user: Friend(publicKey: user.publicKey, name: "Anonymous", profilePicUrl: ""))
-                        .onAppear {
-                            if let lastUser = viewModel.searchUsers.last, user.publicKey == lastUser.publicKey {
-                                viewModel.nextPage()
+                    if user.publicKey != AppViewModel.shared.user.publicKey && !AppViewModel.shared.user.friendsSet.contains(user.publicKey) {
+                        SearchUserView(user: Friend(publicKey: user.publicKey, name: "Anonymous", profilePicUrl: ""))
+                            .onAppear {
+                                if let lastUser = viewModel.searchUsers.last, user.publicKey == lastUser.publicKey {
+                                    viewModel.nextPage()
+                                }
                             }
-                        }
-                        .transition(.move(edge: .bottom))
-                }
-                if viewModel.loadingNextPage {
-                    Text("Loading...")
+                            .transition(.move(edge: .bottom))
+                    }
                 }
             }
         }
-        .searchable(text: $searchText, prompt: Text("Find others by name or public key"))
+        .searchable(text: $searchText, prompt: Text("Find by public key"))
         .navigationBarTitle("Search")
         .navigationBarTitleDisplayMode(.inline)
         .onChange(of: searchText) { newValue in
             viewModel.querySearch(keyword: newValue)
+        }
+        .toolbar {
+            ToolbarItemGroup(placement: .navigationBarTrailing) {
+                if viewModel.loadingNextPage {
+                    ProgressView()
+                }
+            }
         }
     }
 }

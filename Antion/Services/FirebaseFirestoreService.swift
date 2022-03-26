@@ -67,6 +67,7 @@ struct FirebaseFirestoreService {
         static let friends = "friends"
         static let selfRequestedFriends = "selfRequestedFriends"
         static let otherRequestedFriends = "otherRequestedFriends"
+        static let requestedTransactions = "requestedTransactions"
         
         static let toProfilePicUrl = "toProfilePicUrl"
         static let fromProfilePicUrl = "fromProfilePicUrl"
@@ -74,7 +75,7 @@ struct FirebaseFirestoreService {
     }
     
     enum FirestoreError: String, LocalizedError {
-        case UnwrappingSnapshotFailed = "UnwrappingSnapshotFailed"
+        case UnwrappingSnapshotFailed
         case CodingModelFailed
         case NoDocuments
     }
@@ -103,6 +104,7 @@ struct FirebaseFirestoreService {
             
             // else, false
             completion(.success(false))
+            return
         }
     }
     
@@ -145,6 +147,7 @@ struct FirebaseFirestoreService {
         }
         
         completion(.success(()))
+        return
     }
 
     func storeNewSearchUser(searchUser: SearchUser, completion: @escaping (Result<Void,Error>) -> Void) {
@@ -160,6 +163,7 @@ struct FirebaseFirestoreService {
                 return
             }
             completion(.success(()))
+            return
         }
         
     }
@@ -174,12 +178,19 @@ struct FirebaseFirestoreService {
                 return
             }
             if let document = document, document.exists, let data = document.data() {
-                let user = try! FirebaseDecoder().decode(User.self, from: data)
-                completion(user)
+               
+                if let user = try? FirebaseDecoder().decode(User.self, from: data) {
+                    completion(user)
+                    return
+                }
+                print("Error converting to User")
+                completion(nil)
+                return
             } else {
                 printError()
                 print("Document does not exist")
                 completion(nil)
+                return
             }
         }
     }
@@ -193,14 +204,51 @@ struct FirebaseFirestoreService {
                 return
             }
             if let document = document, document.exists, let data = document.data() {
-                let user = try! FirebaseDecoder().decode(User.self, from: data)
-                completion(.success(user))
+                if let user = try? FirebaseDecoder().decode(User.self, from: data) {
+                    completion(.success(user))
+                    return
+                }
+                
+                completion(.failure(FirestoreError.UnwrappingSnapshotFailed))
+                return
             } else {
                 printError()
                 print("Document does not exist")
                 completion(.failure(FirestoreError.UnwrappingSnapshotFailed))
+                return
             }
         }
+    }
+    
+    func sendRequestedTransaction(transaction: Transaction) {
+        guard let transactionData = try? FirestoreEncoder().encode(transaction) else {
+            printError()
+            return
+        }
+        
+        // put it in other's otherRequestedTransactions
+        rootRef.collection(Keys.Users).document(transaction.fromPublicKey.slashToDash()).updateData([
+            Keys.requestedTransactions: FieldValue.arrayUnion([transactionData])
+        ])
+        
+        rootRef.collection(Keys.Users).document(transaction.toPublicKey.slashToDash()).updateData([
+            Keys.requestedTransactions: FieldValue.arrayUnion([transactionData])
+        ])
+    }
+    
+    func deleteRequestedTransaction(transaction: Transaction) {
+        guard let transactionData = try? FirestoreEncoder().encode(transaction) else {
+            printError()
+            return
+        }
+        
+        rootRef.collection(Keys.Users).document(transaction.fromPublicKey.slashToDash()).updateData([
+            Keys.requestedTransactions: FieldValue.arrayRemove([transactionData])
+        ])
+        
+        rootRef.collection(Keys.Users).document(transaction.toPublicKey.slashToDash()).updateData([
+            Keys.requestedTransactions: FieldValue.arrayRemove([transactionData])
+        ])
     }
     
     func sendFriendRequest(selfFriend: Friend, otherFriend: Friend) {
@@ -223,119 +271,152 @@ struct FirebaseFirestoreService {
         ])
     }
     
-    func getSentRequestedTransactions(forPublicKey publicKey: String, completion: @escaping ([Transaction]) -> Void) {
-        completion([])
-//        rootRef.collection(Keys.Users).document(publicKey.slashToDash()).collection(Keys.UserSentRequestedTransactions).order(by: "timeStamp", descending: true).addSnapshotListener { snapshot, error in
-//            guard let documents = snapshot?.documents else {
-//                completion([])
-//                return
-//            }
-//            let transactions = documents.map { qSnapshot in
-//                return try! FirebaseDecoder().decode(Transaction.self, from: qSnapshot.data())
-//            }
-//            completion(transactions)
-//        }
+    func cancelFriendRequest(selfFriend: Friend, otherFriend: Friend) {
+        guard let selfData = try? FirestoreEncoder().encode(selfFriend) else {
+            printError()
+            return
+        }
+        guard let otherData = try? FirestoreEncoder().encode(otherFriend) else {
+            printError()
+            return
+        }
+        // remove self in other
+        rootRef.collection(Keys.Users).document(otherFriend.publicKey.slashToDash()).updateData([
+            Keys.otherRequestedFriends: FieldValue.arrayRemove([selfData])
+        ])
+        
+        // remove other in self
+        rootRef.collection(Keys.Users).document(selfFriend.publicKey.slashToDash()).updateData([
+            Keys.selfRequestedFriends: FieldValue.arrayRemove([otherData])
+        ])
     }
     
-    func getReceivedRequestedTransactions(forPublicKey publicKey: String, completion: @escaping ([Transaction]) -> Void) {
-        completion([])
-//        rootRef.collection(Keys.Users).document(publicKey.slashToDash()).collection(Keys.UserReceivedRequestedTransactions).order(by: "timeStamp", descending: true).addSnapshotListener { snapshot, error in
-//            guard let documents = snapshot?.documents else {
-//                completion([])
-//                return
-//            }
-//            let transactions = documents.map { qSnapshot in
-//                return try! FirebaseDecoder().decode(Transaction.self, from: qSnapshot.data())
-//            }
-//            completion(transactions)
-//        }
+    func acceptFriendRequest(selfFriend: Friend, otherFriend: Friend) {
+        cancelFriendRequest(selfFriend: otherFriend, otherFriend: selfFriend)
+        guard let selfData = try? FirestoreEncoder().encode(selfFriend) else {
+            printError()
+            return
+        }
+        guard let otherData = try? FirestoreEncoder().encode(otherFriend) else {
+            printError()
+            return
+        }
+        // put self in other
+        rootRef.collection(Keys.Users).document(otherFriend.publicKey.slashToDash()).updateData([
+            Keys.friends: FieldValue.arrayUnion([selfData])
+        ])
+        
+        // put other in self
+        rootRef.collection(Keys.Users).document(selfFriend.publicKey.slashToDash()).updateData([
+            Keys.friends: FieldValue.arrayUnion([otherData])
+        ])
     }
     
-    func updateProfilePicUrl(publicKey: String, profilePicUrl: String) {
+    func unfriend(selfFriend: Friend, otherFriend: Friend) {
+        guard let selfData = try? FirestoreEncoder().encode(selfFriend) else {
+            printError()
+            return
+        }
+        guard let otherData = try? FirestoreEncoder().encode(otherFriend) else {
+            printError()
+            return
+        }
+        // remove self in other
+        rootRef.collection(Keys.Users).document(otherFriend.publicKey.slashToDash()).updateData([
+            Keys.friends: FieldValue.arrayRemove([selfData])
+        ])
+        
+        // remove other in self
+        rootRef.collection(Keys.Users).document(selfFriend.publicKey.slashToDash()).updateData([
+            Keys.friends: FieldValue.arrayRemove([otherData])
+        ])
+    }
+    
+    func updateName(publicKey: String, previousName: String, name: String, profilePicUrl: String, friendsPublicKeys: [String], selfRequested: [String], otherRequested: [String]) {
+        guard let previousData = try? FirestoreEncoder().encode(Friend(publicKey: publicKey, name: previousName, profilePicUrl: profilePicUrl)) else {
+            printError()
+            return
+        }
+        guard let currentData = try? FirestoreEncoder().encode(Friend(publicKey: publicKey, name: name, profilePicUrl: profilePicUrl)) else {
+            printError()
+            return
+        }
         
         // Update Users/{publicKey}/profilePicUrl
-//        rootRef.collection(Keys.Users).document(publicKey.slashToDash()).updateData([Keys.profilePicUrl: profilePicUrl])
+        rootRef.collection(Keys.Users).document(publicKey.slashToDash()).updateData([Keys.name: name])
         
-        // Update SearchUsers/{publicKey}/profilePicUrl
-//        rootRef.collection(Keys.SearchUsers).document(publicKey.slashToDash()).updateData([Keys.profilePicUrl: profilePicUrl])
+        // For friend in acquaintances
+        for friendPublicKey in friendsPublicKeys {
+            rootRef.collection(Keys.Users).document(friendPublicKey.slashToDash()).updateData([
+                Keys.friends: FieldValue.arrayRemove([previousData])
+            ])
+            rootRef.collection(Keys.Users).document(friendPublicKey.slashToDash()).updateData([
+                Keys.friends: FieldValue.arrayUnion([currentData])
+            ])
+        }
         
-        // For acquaintance in acquaintances
-            // Update in Users/{acquaintancePublicKey}/Acquaintances/{publicKey}/profilePicUrl
+        for otherPublicKey in selfRequested {
+            rootRef.collection(Keys.Users).document(otherPublicKey.slashToDash()).updateData([
+                Keys.otherRequestedFriends: FieldValue.arrayRemove([previousData])
+            ])
+            rootRef.collection(Keys.Users).document(otherPublicKey.slashToDash()).updateData([
+                Keys.otherRequestedFriends: FieldValue.arrayUnion([currentData])
+            ])
+        }
+
+        for selfPublicKey in otherRequested {
+            rootRef.collection(Keys.Users).document(selfPublicKey.slashToDash()).updateData([
+                Keys.selfRequestedFriends: FieldValue.arrayRemove([previousData])
+            ])
+            rootRef.collection(Keys.Users).document(selfPublicKey.slashToDash()).updateData([
+                Keys.selfRequestedFriends: FieldValue.arrayUnion([currentData])
+            ])
+        }
+    }
+    
+    func updateProfilePicUrl(publicKey: String, name: String, previousProfilePicUrl: String, profilePicUrl: String, friendsPublicKeys: [String], selfRequested: [String], otherRequested: [String]) {
         
-        // For each transaction in requestedTransactions
-//        rootRef.collection(Keys.Users).document(publicKey.slashToDash()).collection(Keys.UserReceivedRequestedTransactions).getDocuments { querySnapshot, error in
-//            if let documents = querySnapshot?.documents, !documents.isEmpty {
-//                for document in documents {
-//                    document.reference.updateData([Keys.fromProfilePicUrl:profilePicUrl])
-//                    rootRef.collection(Keys.Users).document((document.data()[Keys.toPublicKey] as! String).slashToDash()).collection(Keys.UserSentRequestedTransactions).document(document.documentID).updateData([Keys.toProfilePicUrl: profilePicUrl])
-//                }
-//            }
-//        }
-            // Update in Users/{fromPublicKey}/RequestedTransactions/{transactionId}/from(to)ProfilePicUrl
-            // Update in Users/{toPublicKey}/RequestedTransactions/{transactionId}/from(to)ProfilePicUrl
+        guard let previousData = try? FirestoreEncoder().encode(Friend(publicKey: publicKey, name: name, profilePicUrl: previousProfilePicUrl)) else {
+            printError()
+            return
+        }
+        guard let currentData = try? FirestoreEncoder().encode(Friend(publicKey: publicKey, name: name, profilePicUrl: profilePicUrl)) else {
+            printError()
+            return
+        }
         
-        // For each transaction in pendingTransactions
-            // Update in Users/{fromPublicKey}/PendingTransactions/{transactionId}/fromProfilePicUrl
-            // Update in Users/{toPublicKey}/PendingTransactions/{transactionId}/fromProfilePicUrl
-            // Update in PendingTransactions/transactionId}/from(to)ProfilePicUrl
+        // Update Users/{publicKey}/profilePicUrl
+        rootRef.collection(Keys.Users).document(publicKey.slashToDash()).updateData([Keys.profilePicUrl: profilePicUrl])
         
-        // For each transaction in confirmedTransaction
-            // Update in Users/{fromPublicKey}/ConfirmedTransactions/{transactionId}/from(to)ProfilePicUrl
-            // Update in Users/{toPublicKey}/ConfirmedTransactions/{transactionId}/from(to)ProfilePicUrl
+        // For friend in acquaintances
+        for friendPublicKey in friendsPublicKeys {
+            rootRef.collection(Keys.Users).document(friendPublicKey.slashToDash()).updateData([
+                Keys.friends: FieldValue.arrayRemove([previousData])
+            ])
+            rootRef.collection(Keys.Users).document(friendPublicKey.slashToDash()).updateData([
+                Keys.friends: FieldValue.arrayUnion([currentData])
+            ])
+        }
         
-            // guard transactionCount < 500 else { continue }
-        
-            // Update in FeedTransactions/{fromPublicKey}/FeedTransactions/{transactionId}/from(to)ProfilePicUrl
-            // Update in FeedTransactions/{toPublicKey}/FeedTransactions/{transactionId}/from(to)ProfilePicUrl
-        
-            // For friend in myFriends
-                // Update in FeedTransactions/friend/FeedTransactions/{transactionId}/from(to)ProfilePicUrl
-        
-            // For friend in yourFriends
-                // Update in FeedTransactions/friend/FeedTransactions/{transactionId}/from(to)ProfilePicUrl
-            
-        
-//        var numberOfChanges = 2 + 2(numRequestedTransactions) + 3(numPendingTransaction) + (numConfirmedTransactions * 1004)
-        
+        for otherPublicKey in selfRequested {
+            rootRef.collection(Keys.Users).document(otherPublicKey.slashToDash()).updateData([
+                Keys.otherRequestedFriends: FieldValue.arrayRemove([previousData])
+            ])
+            rootRef.collection(Keys.Users).document(otherPublicKey.slashToDash()).updateData([
+                Keys.otherRequestedFriends: FieldValue.arrayUnion([currentData])
+            ])
+        }
+
+        for selfPublicKey in otherRequested {
+            rootRef.collection(Keys.Users).document(selfPublicKey.slashToDash()).updateData([
+                Keys.selfRequestedFriends: FieldValue.arrayRemove([previousData])
+            ])
+            rootRef.collection(Keys.Users).document(selfPublicKey.slashToDash()).updateData([
+                Keys.selfRequestedFriends: FieldValue.arrayUnion([currentData])
+            ])
+        }
 
     }
-    
-    // MARK: Transactions Page
-    
-    
-    func searchFriends(searchPrompt: String, publicKey: String, completion: @escaping ([Friend]) -> Void) {
-        completion([])
-//        rootRef
-//            .collection(Keys.Users)
-//            .document(publicKey.slashToDash())
-//            .collection(Keys.UserFriends)
-//            .whereField("name", isGreaterThanOrEqualTo: searchPrompt)
-//            .order(by: "name")
-//            .limit(to: 10)
-//            .getDocuments { querySnapshot, error in
-//            completion([])
-//        }
-    }
-    
-    func fetchRecepientsForTransaction(completion: @escaping ([Friend]) -> Void) {
-        completion([])
-//        rootRef
-//            .collection(Keys.Users)
-//            .getDocuments { querySnapshot, error in
-//            guard let documents = querySnapshot?.documents else {
-//                print("No documents")
-//                completion([])
-//                return
-//            }
-//
-//            let users = documents.map { queryDocumentSnapshot -> OtherUser in
-//                return try! FirebaseDecoder().decode(OtherUser.self, from: queryDocumentSnapshot.data())
-//            }
-//
-//            completion(users)
-//        }
-    }
-
     
     //MARK: Search
     
@@ -374,10 +455,8 @@ struct FirebaseFirestoreService {
             }
             
             completion(.success((searchUsers, documents.last)))
+            return
         }
     }
     
-    
 }
-
-

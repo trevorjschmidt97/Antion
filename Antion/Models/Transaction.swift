@@ -23,18 +23,37 @@ struct Transaction: Identifiable, Codable {
         amount.formattedAmount()
     }
     
-    init(fromPublicKey: String, fromPrivateKey: String, toPublicKey: String, amount: Int, note: String) {
+    init(id: String, fromPublicKey: String, toPublicKey: String, timeStamp: String, amount: Int, note: String, signature: String) {
+        self.id = id
+        self.fromPublicKey = fromPublicKey
+        self.toPublicKey = toPublicKey
+        self.timeStamp = timeStamp
+        self.amount = amount
+        self.note = note
+        self.signature = signature
+    }
+    
+    init(fromPublicKey: String, fromPrivateKey: String, toPublicKey: String, amount: Int, note: String, timeStamp: String) {
         self.id = UUID().uuidString
         self.fromPublicKey = fromPublicKey
         self.toPublicKey = toPublicKey
-        self.timeStamp = Date.now.toLongString()
+        self.timeStamp = timeStamp
         self.amount = amount
         self.note = note
         self.signature = ""
-        self.signature = CryptoService.signTransaction(transaction: self, privateKeyString: fromPrivateKey) ?? ""
+        let cryptoSignature = CryptoService.signTransaction(transaction: self, privateKeyString: fromPrivateKey)
+        self.signature = cryptoSignature ?? ""
     }
 
     func isValidSignature() -> Bool {
         return CryptoService.isValidSignature(transaction: self)
+    }
+}
+struct RequestedTransaction: Identifiable {
+    var transaction: Transaction
+    var requestState: RequestState
+    
+    var id: String {
+        transaction.id
     }
 }

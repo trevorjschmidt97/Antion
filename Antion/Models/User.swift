@@ -9,6 +9,26 @@ import Foundation
 
 struct User: Codable, Identifiable {
     
+    init(publicKey: String, name: String, profilePicUrl: String, friends: [Friend], otherRequestedFriends: [Friend], selfRequestedFriends: [Friend], requestedTransactions: [Transaction]) {
+        self.publicKey = publicKey
+        self.name = name
+        self.profilePicUrl = profilePicUrl
+        self.friends = friends
+        self.otherRequestedFriends = otherRequestedFriends
+        self.selfRequestedFriends = selfRequestedFriends
+        self.requestedTransactions = requestedTransactions
+    }
+    
+    init(publicKey: String) {
+        self.name = "Anonymous"
+        self.publicKey = publicKey
+        self.profilePicUrl = ""
+        self.friends = []
+        self.selfRequestedFriends = []
+        self.otherRequestedFriends = []
+        self.requestedTransactions = []
+    }
+    
     var name: String
     var publicKey: String
     var profilePicUrl: String
@@ -16,6 +36,12 @@ struct User: Codable, Identifiable {
     var friends: [Friend]
     var selfRequestedFriends: [Friend]
     var otherRequestedFriends: [Friend]
+    
+    var requestedTransactions: [Transaction]
+    
+    var id: String {
+        publicKey
+    }
     
     var friendsMap: [String:Friend] {
         var retFriends: [String:Friend] = [:]
@@ -53,19 +79,9 @@ struct User: Codable, Identifiable {
         }
         return retRequestedFriends.sorted{ $0.friend.publicKey.lowercased() < $1.friend.publicKey.lowercased()}
     }
-
-    var id: String {
-        publicKey
-    }
     
-    init(publicKey: String) {
-        self.name = "Anonymous"
-        self.publicKey = publicKey
-        self.profilePicUrl = ""
-        self.friends = []
-        self.selfRequestedFriends = []
-        self.otherRequestedFriends = []
-    }
+   
+    
     
     
 }

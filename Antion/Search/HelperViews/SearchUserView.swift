@@ -22,7 +22,7 @@ struct SearchUserView: View {
                 VStack(alignment: .leading) {
                     Text(user.name)
                         .fontWeight(.bold)
-                    Text(" Public Key: ")
+                    Text("Public Key: ")
                         .font(.system(.footnote, design: .monospaced))
                     Text(" @" + user.publicKey.prefix(22))
                         .font(.system(.footnote, design: .monospaced))

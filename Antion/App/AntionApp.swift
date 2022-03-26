@@ -31,13 +31,11 @@ struct AntionApp: App {
                 .onAppear {
                     appViewModel.onAppear()
                 }
-                .onChange(of: appViewModel.user.selfRequestedFriends, perform: { newValue in
-                    print("New self requested friend")
-                    print(newValue)
-                })
-                .onChange(of: appViewModel.user.otherRequestedFriends, perform: { newValue in
-                    print("New other requested friend")
-                    print(newValue)
+                .onChange(of: appViewModel.privateKey, perform: { newValue in
+                    appViewModel.privateKey = newValue
+                    if appViewModel.privateKey != nil {
+                        appViewModel.pullUserInfo()
+                    }
                 })
                 .navigationViewStyle(StackNavigationViewStyle())
                 .tint(AppViewModel.shared.accentColor)
@@ -71,7 +69,7 @@ struct AntionApp: App {
                         },
                        onTap: nil,
                        completion: nil)
-                
+            
         }
     }
 }

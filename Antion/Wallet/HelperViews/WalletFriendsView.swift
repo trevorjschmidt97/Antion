@@ -56,6 +56,14 @@ struct WalletFriendsView: View {
                     isShowingFriends.toggle()
                 }
             }
+            
+            if isShowingFriends {
+                ForEach(viewModel.user.friends) { friend in
+                    SearchUserView(user: friend)
+                        .padding(.horizontal)
+                    Divider()
+                }
+            }
         }
         .padding(.top)
     }

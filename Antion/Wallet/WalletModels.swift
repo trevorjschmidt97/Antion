@@ -36,9 +36,9 @@ enum WalletState {
         case .friends:
             return "person.crop.circle.badge.checkmark"
         case .selfRequested:
-            return "person.crop.circle"
+            return "person.crop.circle.badge.clock"
         case .otherRequested:
-            return "person.crop.circle"
+            return "person.crop.circle.badge.clock"
         case .stranger:
             return "person.crop.circle.badge.plus"
         }

@@ -11,8 +11,6 @@ import SwiftUI
 class WalletViewModel: ObservableObject {
     
     @Published var user: User
-    @Published var confirmedTransactions: [Transaction] = []
-    @Published var pendingTransactions: [Transaction] = []
     
     var inputImage: UIImage?
     
@@ -52,27 +50,33 @@ class WalletViewModel: ObservableObject {
         let selfFriend = Friend(publicKey: AppViewModel.shared.user.publicKey, name: AppViewModel.shared.user.name, profilePicUrl: AppViewModel.shared.user.profilePicUrl)
         let otherFriend = Friend(publicKey: user.publicKey, name: user.name, profilePicUrl: user.profilePicUrl)
         FirebaseFirestoreService.shared.sendFriendRequest(selfFriend: selfFriend, otherFriend: otherFriend)
-//        walletState = .selfRequested
     }
     
     // Signed in user is self, shown friend is other
-    func cancelFriendRequest() {
-        let selfPublicKey = AppViewModel.shared.publicKey
-        let otherPublicKey = user.publicKey
-        
-        
+    func cancelFriendRequest(selfFriend: Friend, otherFriend: Friend) {
+        FirebaseFirestoreService.shared.cancelFriendRequest(selfFriend: selfFriend, otherFriend: otherFriend)
     }
     
-    func acceptFriendRequest() {
-        
+    func acceptFriendRequest(selfFriend: Friend, otherFriend: Friend) {
+        FirebaseFirestoreService.shared.acceptFriendRequest(selfFriend: selfFriend, otherFriend: otherFriend)
     }
     
-    func rejectFriendRequest() {
-        
+    func rejectFriendRequest(selfFriend: Friend, otherFriend: Friend) {
+        cancelFriendRequest(selfFriend: otherFriend, otherFriend: selfFriend)
     }
     
-    func unfriend() {
-        
+    func unfriend(selfFriend: Friend, otherFriend: Friend) {
+        FirebaseFirestoreService.shared.unfriend(selfFriend: selfFriend, otherFriend: otherFriend)
+    }
+    
+    func updateName(newName: String) {
+        FirebaseFirestoreService.shared.updateName(publicKey: user.publicKey,
+                                                   previousName: user.name,
+                                                   name: newName,
+                                                   profilePicUrl: user.profilePicUrl,
+                                                   friendsPublicKeys: AppViewModel.shared.user.friends.map{$0.publicKey},
+                                                   selfRequested: AppViewModel.shared.user.selfRequestedFriends.map{$0.publicKey},
+                                                   otherRequested: AppViewModel.shared.user.otherRequestedFriends.map{$0.publicKey})
     }
     
     func updateProfilePicture() {
@@ -86,11 +90,16 @@ class WalletViewModel: ObservableObject {
         }
         
         FirebaseStorageService.shared.updateProfilePic(publicKey: user.publicKey, imageData: imageData) { [weak self] storageResult in
+            guard let self = self else { return }
             switch storageResult {
             case .success(let url):
-                DispatchQueue.main.async {
-                    self?.user.profilePicUrl = url
-                }
+                FirebaseFirestoreService.shared.updateProfilePicUrl(publicKey: self.user.publicKey,
+                                                                    name: self.user.name,
+                                                                    previousProfilePicUrl: self.user.profilePicUrl,
+                                                                    profilePicUrl: url,
+                                                                    friendsPublicKeys: AppViewModel.shared.user.friends.map{$0.publicKey},
+                                                                    selfRequested: AppViewModel.shared.user.selfRequestedFriends.map{$0.publicKey},
+                                                                    otherRequested: AppViewModel.shared.user.otherRequestedFriends.map{$0.publicKey})
                 print(url)
             case .failure(let error):
                 print(error.localizedDescription)

@@ -10,17 +10,11 @@ import SwiftUI
 struct OtherUserRecepientView: View {
     
     var otherUser: Friend
-//    var name: String
-//    var publicKey: String
-//    var profilePicUrl: String?
-    
-//    @Binding var otherName: String
-//    @Binding var otherPublicKey: String
-//    @Binding var otherProfilePicUrl: String?
     @Binding var bindingOtherUser: Friend
     
     @Binding var showPayRequest: Bool
-    @Binding var showProfileView: Bool
+    
+    @State private var showWallet = false
     
     var body: some View {
         ZStack {
@@ -48,8 +42,19 @@ struct OtherUserRecepientView: View {
                 Spacer()
                 Image(systemName: "info.circle")
                     .onTapGesture {
-                        bindingOtherUser = otherUser
-                        showProfileView.toggle()
+                        showWallet = true
+                    }
+            }
+        }
+        .sheet(isPresented: $showWallet) {
+            NavigationView {
+                WalletView(publicKey: otherUser.publicKey, name: otherUser.name, profilePicUrl: otherUser.profilePicUrl)
+                    .toolbar {
+                        ToolbarItemGroup(placement: .navigationBarLeading) {
+                            Button("Done") {
+                                showWallet = false
+                            }
+                        }
                     }
             }
         }

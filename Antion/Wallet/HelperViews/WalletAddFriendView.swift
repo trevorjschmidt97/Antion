@@ -33,18 +33,26 @@ struct WalletAddFriendView: View {
                             EmptyView()
                         case .friends:
                             Button("Unfriend \(viewModel.user.name)") {
-                                viewModel.unfriend()
+                                let selfFriend = Friend(publicKey: AppViewModel.shared.user.publicKey, name: AppViewModel.shared.user.name, profilePicUrl: AppViewModel.shared.user.profilePicUrl)
+                                let otherFriend = Friend(publicKey: viewModel.user.publicKey, name: viewModel.user.name, profilePicUrl: viewModel.user.profilePicUrl)
+                                viewModel.unfriend(selfFriend: selfFriend, otherFriend: otherFriend)
                             }
                         case .selfRequested:
                             Button("Cancel Friend Request?") {
-                                viewModel.cancelFriendRequest()
+                                let selfFriend = Friend(publicKey: AppViewModel.shared.user.publicKey, name: AppViewModel.shared.user.name, profilePicUrl: AppViewModel.shared.user.profilePicUrl)
+                                let otherFriend = Friend(publicKey: viewModel.user.publicKey, name: viewModel.user.name, profilePicUrl: viewModel.user.profilePicUrl)
+                                viewModel.cancelFriendRequest(selfFriend: selfFriend, otherFriend: otherFriend)
                             }
                         case .otherRequested:
                             Button("Accept Friend Request?") {
-                                viewModel.acceptFriendRequest()
+                                let selfFriend = Friend(publicKey: AppViewModel.shared.user.publicKey, name: AppViewModel.shared.user.name, profilePicUrl: AppViewModel.shared.user.profilePicUrl)
+                                let otherFriend = Friend(publicKey: viewModel.user.publicKey, name: viewModel.user.name, profilePicUrl: viewModel.user.profilePicUrl)
+                                viewModel.acceptFriendRequest(selfFriend: selfFriend, otherFriend: otherFriend)
                             }
                             Button("Reject Friend Request?") {
-                                viewModel.rejectFriendRequest()
+                                let selfFriend = Friend(publicKey: AppViewModel.shared.user.publicKey, name: AppViewModel.shared.user.name, profilePicUrl: AppViewModel.shared.user.profilePicUrl)
+                                let otherFriend = Friend(publicKey: viewModel.user.publicKey, name: viewModel.user.name, profilePicUrl: viewModel.user.profilePicUrl)
+                                viewModel.rejectFriendRequest(selfFriend: selfFriend, otherFriend: otherFriend)
                             }
                         case .stranger:
                             Button("Send Friend Request?") {
