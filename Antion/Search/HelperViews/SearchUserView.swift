@@ -18,7 +18,7 @@ struct SearchUserView: View {
             showWallet.toggle()
         } label: {
             HStack {
-                ProfilePicView(username: user.name, profilePicUrl: user.profilePicUrl, size: 50)
+                ProfilePicView(publicKey: user.publicKey, username: user.name, profilePicUrl: user.profilePicUrl, size: 50)
                 VStack(alignment: .leading) {
                     Text(user.name)
                         .fontWeight(.bold)

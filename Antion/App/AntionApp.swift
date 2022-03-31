@@ -8,10 +8,6 @@
 import SwiftUI
 import AlertToast
 
-public func printError(file: String = #file, function: String = #function, line: Int = #line ) {
-    print("Error in file: \n\t\(file)\nfunction: \n\t\(function), line: \(line)")
-}
-
 @main
 struct AntionApp: App {
     

@@ -43,6 +43,7 @@ struct SearchView: View {
             }
         }
         .searchable(text: $searchText, prompt: Text("Find by public key"))
+        .disableAutocorrection(true)
         .navigationBarTitle("Search")
         .navigationBarTitleDisplayMode(.inline)
         .onChange(of: searchText) { newValue in

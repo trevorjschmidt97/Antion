@@ -20,7 +20,7 @@ struct OtherUserRecepientView: View {
         ZStack {
             HStack {
                 Group {
-                    ProfilePicView(username: otherUser.name, profilePicUrl: otherUser.profilePicUrl, size: 50)
+                    ProfilePicView(publicKey: otherUser.publicKey, username: otherUser.name, profilePicUrl: otherUser.profilePicUrl, size: 50)
                     VStack(alignment: .leading) {
                         Text(otherUser.name)
                             .fontWeight(.bold)

@@ -15,17 +15,7 @@ struct ContentView: View {
         if appViewModel.privateKey != nil, !appViewModel.loadingUserInfo, !appViewModel.loadingSearchUserInfo {
             ZStack {
                 TabView {
-                    NavigationView {
-                        WalletView(publicKey: appViewModel.publicKey,
-                                   name: appViewModel.name,
-                                   profilePicUrl: appViewModel.profilePicUrl)
-                    }
-                        .tabItem {
-                            VStack {
-                                Text("Wallet")
-                                Image(systemName: "wallet.pass")
-                            }
-                        }
+                    
                     
                     NavigationView {
                         TransactionsView()
@@ -56,6 +46,20 @@ struct ContentView: View {
                                 Image(systemName: "magnifyingglass")
                             }
                         }
+                    
+                    NavigationView {
+                        WalletView(publicKey: appViewModel.publicKey,
+                                   name: appViewModel.name,
+                                   profilePicUrl: appViewModel.profilePicUrl)
+                    }
+                        .tabItem {
+                            VStack {
+                                Text("Wallet")
+                                Image(systemName: "wallet.pass")
+                            }
+                        }
+//                        .badge(4)
+                        .badge(appViewModel.user.numTabBadge)
                 }
                 
                 if appViewModel.loadingUserInfo ||

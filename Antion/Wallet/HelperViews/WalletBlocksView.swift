@@ -20,7 +20,7 @@ struct WalletBlocksView: View {
     var body: some View {
         VStack {
             Text("""
-                 This wallet has mined **\(AppViewModel.shared.blockChain.numMinedBlocks(address: viewModel.user.publicKey))** blocks on the blockchain. It has received **\(AppViewModel.shared.blockChain.numReceivedRewards(address: viewModel.user.publicKey).formattedAmount())** antion as rewards.
+                 This wallet has mined **\(AppViewModel.shared.blockChain.numMinedBlocks(address: viewModel.user.publicKey))** blocks. It has received **\(AppViewModel.shared.blockChain.numReceivedRewards(address: viewModel.user.publicKey).formattedAmount())** antion as rewards.
                  """)
                 .multilineTextAlignment(.center)
                 .padding(.vertical)

@@ -13,6 +13,32 @@ struct BasicBlockView: View {
     
     @State private var showFullBlockView = false
     
+    
+    @ViewBuilder
+    func previousHash() -> some View {
+        HStack {
+            Text("Previous Hash:")
+            Spacer()
+            VStack {
+                Text("\(String(block.previousHash.prefix(22)))")
+                Text("\(String(block.previousHash.suffix(22)))")
+            }
+        }
+        Divider()
+    }
+    @ViewBuilder
+    func minerView() -> some View {
+        HStack {
+            Text("Miner:")
+            Spacer()
+            VStack {
+                Text("@\(String(block.minerPublicKey.prefix(22)))")
+                Text(" \(String(block.minerPublicKey.suffix(22)))")
+            }
+        }
+        Divider()
+    }
+    
     var body: some View {
         VStack(alignment: .leading) {
             Text("Block:   \(block.index)")
@@ -25,15 +51,9 @@ struct BasicBlockView: View {
             }
             Divider()
 
-            HStack {
-                Text("Previous Hash:")
-                Spacer()
-                VStack {
-                    Text("\(String(block.previousHash.prefix(22)))")
-                    Text("\(String(block.previousHash.suffix(22)))")
-                }
-            }
-            Divider()
+            previousHash()
+            
+            minerView()
 
             HStack {
                 Text("Number of Transactions:")

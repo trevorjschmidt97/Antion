@@ -51,8 +51,8 @@ struct FullBlockView: View {
             Text("Miner Public Key:")
             Spacer()
             VStack {
-                Text("\(String(block.minerPublicKey.prefix(22)))")
-                Text("\(String(block.minerPublicKey.suffix(22)))")
+                Text("@\(String(block.minerPublicKey.prefix(22)))")
+                Text(" \(String(block.minerPublicKey.suffix(22)))")
             }
             .font(.system(.caption, design: .monospaced))
         }

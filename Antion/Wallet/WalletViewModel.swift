@@ -57,15 +57,19 @@ class WalletViewModel: ObservableObject {
         FirebaseFirestoreService.shared.cancelFriendRequest(selfFriend: selfFriend, otherFriend: otherFriend)
     }
     
+    // Signed in user is self, shown friend is other
     func acceptFriendRequest(selfFriend: Friend, otherFriend: Friend) {
         FirebaseFirestoreService.shared.acceptFriendRequest(selfFriend: selfFriend, otherFriend: otherFriend)
     }
     
+    // Signed in user is self, shown friend is other
     func rejectFriendRequest(selfFriend: Friend, otherFriend: Friend) {
-        cancelFriendRequest(selfFriend: otherFriend, otherFriend: selfFriend)
+        FirebaseFirestoreService.shared.rejectFriendRequest(selfFriend: selfFriend, otherFriend: otherFriend)
     }
     
+    // Signed in user is self, shown friend is other
     func unfriend(selfFriend: Friend, otherFriend: Friend) {
+        AppViewModel.shared.user.removeFriend(friendPublicKey: otherFriend.publicKey)
         FirebaseFirestoreService.shared.unfriend(selfFriend: selfFriend, otherFriend: otherFriend)
     }
     
