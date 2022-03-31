@@ -58,7 +58,7 @@ struct WalletFriendsView: View {
             }
             
             if isShowingFriends {
-                ForEach(viewModel.user.friends) { friend in
+                ForEach(viewModel.user.friends.sorted{ $0.name < $1.name }) { friend in
                     SearchUserView(user: friend)
                         .padding(.horizontal)
                     Divider()

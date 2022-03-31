@@ -24,14 +24,14 @@ class AuthViewModel: ObservableObject {
     // try to log in with faceId/touchId if possible
     func onAppear() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            self.requestBiometricUnlock { result in
+            AppViewModel.shared.requestBiometricUnlock { result in
                 DispatchQueue.main.async {
                     switch result {
                     case .success(let privateKey):
                         AppViewModel.shared.privateKey = privateKey
                     case .failure(let error):
                         if error == .deniedAccess {
-                            AppViewModel.shared.showFailure(title: "Biometrics Denied", message: "Go to settings to allow \(self.biometricType() == .face ? "face-id" : "touch-id")", displayMode: .hud)
+                            AppViewModel.shared.showFailure(title: "Biometrics Denied", message: "Go to settings to allow \(AppViewModel.shared.biometricType() == .face ? "face-id" : "touch-id")", displayMode: .hud)
                         }
                         print(error.localizedDescription)
                     }
@@ -50,14 +50,20 @@ class AuthViewModel: ObservableObject {
         }
     }
     
-    @Published var errorSendingPhoneAuthCode = false
+    @Published var errorSendingPhoneAuthCodeShown = false
+    var errorSendingPhoneAuthCodeMessage = ""
     func initiatePhoneAuth() {
         // Send auth code
-        FirebaseAuthService.shared.startAuth(phoneNumber: phoneNumberInput) { [weak self] success in
-            if success {
-                self?.showPhoneVerificationScreen.toggle()
-            } else {
-                self?.errorSendingPhoneAuthCode = true
+        FirebaseAuthService.shared.startAuth(phoneNumber: phoneNumberInput) { [weak self] result in
+            guard let self = self else { return }
+            DispatchQueue.main.async {
+                switch result {
+                case .success():
+                    self.showPhoneVerificationScreen.toggle()
+                case .failure(let error):
+                    self.errorSendingPhoneAuthCodeMessage = error.localizedDescription
+                    self.errorSendingPhoneAuthCodeShown = true
+                }
             }
         }
     }
@@ -186,7 +192,7 @@ class AuthViewModel: ObservableObject {
 }
 
 
-extension AuthViewModel {
+extension AppViewModel {
     // Biometric stuff
     
     enum BiometricType {

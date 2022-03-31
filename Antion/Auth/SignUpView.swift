@@ -91,21 +91,19 @@ struct SignUpView: View {
                     }
                 }
             }
-            .toast(isPresenting: $authViewModel.errorSendingPhoneAuthCode,
+            .toast(isPresenting: $authViewModel.errorSendingPhoneAuthCodeShown,
                 duration: 1.5,
                 tapToDismiss: true,
                 offsetY: 0.0,
                 alert: {
                 AlertToast(displayMode: .alert,
                            type: .error(.red),
-                            title: "Error Starting Authentication",
-                            subTitle: nil,
-                            style: nil)
+                           title: authViewModel.errorSendingPhoneAuthCodeMessage,
+                           subTitle: nil,
+                           style: nil)
                  },
                 onTap: nil,
                 completion: nil)
-            
-        
     }
 }
 

@@ -260,12 +260,12 @@ struct FirebaseFirestoreService {
             printError()
             return
         }
-        // put self in other
+        // put self in other's otherRequestedFriends
         rootRef.collection(Keys.Users).document(otherFriend.publicKey.slashToDash()).updateData([
             Keys.otherRequestedFriends: FieldValue.arrayUnion([selfData])
         ])
         
-        // put other in self
+        // put other in self's selfRequestedFriends
         rootRef.collection(Keys.Users).document(selfFriend.publicKey.slashToDash()).updateData([
             Keys.selfRequestedFriends: FieldValue.arrayUnion([otherData])
         ])
@@ -280,12 +280,12 @@ struct FirebaseFirestoreService {
             printError()
             return
         }
-        // remove self in other
+        // remove self in other's otherFriendRequested
         rootRef.collection(Keys.Users).document(otherFriend.publicKey.slashToDash()).updateData([
             Keys.otherRequestedFriends: FieldValue.arrayRemove([selfData])
         ])
         
-        // remove other in self
+        // remove other in self's selfRequestedFriends
         rootRef.collection(Keys.Users).document(selfFriend.publicKey.slashToDash()).updateData([
             Keys.selfRequestedFriends: FieldValue.arrayRemove([otherData])
         ])
@@ -301,14 +301,34 @@ struct FirebaseFirestoreService {
             printError()
             return
         }
-        // put self in other
+        // put self in other's friends
         rootRef.collection(Keys.Users).document(otherFriend.publicKey.slashToDash()).updateData([
             Keys.friends: FieldValue.arrayUnion([selfData])
         ])
         
-        // put other in self
+        // put other in self's friends
         rootRef.collection(Keys.Users).document(selfFriend.publicKey.slashToDash()).updateData([
             Keys.friends: FieldValue.arrayUnion([otherData])
+        ])
+    }
+    
+    func rejectFriendRequest(selfFriend: Friend, otherFriend: Friend) {
+        guard let selfData = try? FirestoreEncoder().encode(selfFriend) else {
+            printError()
+            return
+        }
+        guard let otherData = try? FirestoreEncoder().encode(otherFriend) else {
+            printError()
+            return
+        }
+        // remove self in other's selfRequestedFriends
+        rootRef.collection(Keys.Users).document(otherFriend.publicKey.slashToDash()).updateData([
+            Keys.selfRequestedFriends: FieldValue.arrayRemove([selfData])
+        ])
+        
+        // remove other in self's otherRequestedFriends
+        rootRef.collection(Keys.Users).document(selfFriend.publicKey.slashToDash()).updateData([
+            Keys.otherRequestedFriends: FieldValue.arrayRemove([otherData])
         ])
     }
     
@@ -321,12 +341,12 @@ struct FirebaseFirestoreService {
             printError()
             return
         }
-        // remove self in other
+        // remove self in other's friends
         rootRef.collection(Keys.Users).document(otherFriend.publicKey.slashToDash()).updateData([
             Keys.friends: FieldValue.arrayRemove([selfData])
         ])
         
-        // remove other in self
+        // remove other in self's friends
         rootRef.collection(Keys.Users).document(selfFriend.publicKey.slashToDash()).updateData([
             Keys.friends: FieldValue.arrayRemove([otherData])
         ])

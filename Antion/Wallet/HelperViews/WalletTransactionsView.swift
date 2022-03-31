@@ -18,7 +18,7 @@ struct WalletTransactionsView: View {
     var body: some View {
         VStack {
             Text("""
-                 This wallet has **\(AppViewModel.shared.blockChain.numTransactionsOfWallet(address: viewModel.user.publicKey))** confirmed transaction\(AppViewModel.shared.blockChain.numTransactionsOfWallet(address: viewModel.user.publicKey) == 1 ? "" : "s") on the blockchain. It has received **\(AppViewModel.shared.blockChain.numReceivedBalance(address: viewModel.user.publicKey).formattedAmount())** antion and sent **\(AppViewModel.shared.blockChain.numSentBalance(address: viewModel.user.publicKey).formattedAmount())** antion.
+                 This wallet has **\(AppViewModel.shared.blockChain.numTransactionsOfWallet(address: viewModel.user.publicKey))** confirmed transaction\(AppViewModel.shared.blockChain.numTransactionsOfWallet(address: viewModel.user.publicKey) == 1 ? "" : "s"). It has received **\(AppViewModel.shared.blockChain.numReceivedBalance(address: viewModel.user.publicKey).formattedAmount())** and sent **\(AppViewModel.shared.blockChain.numSentBalance(address: viewModel.user.publicKey).formattedAmount())** antion.
                  """)
                 .multilineTextAlignment(.center)
                 .padding(.vertical)

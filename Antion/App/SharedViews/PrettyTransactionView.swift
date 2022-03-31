@@ -132,7 +132,8 @@ struct PrettyTransactionView: View {
     var body: some View {
         HStack {
             VStack {
-                ProfilePicView(username: fromName,
+                ProfilePicView(publicKey: transaction.fromPublicKey,
+                               username: fromName,
                                profilePicUrl: fromProfilePicUrl,
                                size: 50)
                     .padding(.vertical)
@@ -145,7 +146,7 @@ struct PrettyTransactionView: View {
                             .fixedSize(horizontal: false, vertical: true)
                         Text("\(transaction.timeStamp.longStringToDate().timeAgoDisplay())")
                             .font(.caption)
-                            .padding(.top, -5)
+                            .padding(.top, -12)
                     }
                     .padding(.bottom, 0.1)
                     Spacer()

@@ -62,6 +62,7 @@ struct FindRecepientView: View {
             }
         }
             .searchable(text: $searchText)
+            .disableAutocorrection(true)
             .navigationTitle("Look Up")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

@@ -15,8 +15,30 @@ struct ConfirmationDialogView: View {
     @Binding var showingNameTextField: Bool
     @Binding var showAbout: Bool
     
+    @Binding var showCopied: Bool
+    
     var body: some View {
         Group {
+            Button("Copy Private Key") {
+                AppViewModel.shared.requestBiometricUnlock { result in
+                    DispatchQueue.main.async {
+                        switch result {
+                        case .success(let privateKey):
+                            UIPasteboard.general.string = privateKey
+                            showCopied.toggle()
+                            let generator = UINotificationFeedbackGenerator()
+                            generator.notificationOccurred(.success)
+                            
+//                            AppViewModel.shared.privateKey = privateKey
+                        case .failure(let error):
+                            if error == .deniedAccess {
+                                AppViewModel.shared.showFailure(title: "Biometrics Denied", message: "Go to settings to allow \(AppViewModel.shared.biometricType() == .face ? "face-id" : "touch-id")", displayMode: .hud)
+                            }
+                            print(error.localizedDescription)
+                        }
+                    }
+                }
+            }
             Button("Change App Color") {
                 showingColorPicker = true
             }

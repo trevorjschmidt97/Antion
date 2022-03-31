@@ -24,7 +24,7 @@ struct WalletHeaderView: View {
     
     var body: some View {
         HStack {
-            ProfilePicView(username:showPrivate ? viewModel.user.name : "Anonymous", profilePicUrl:showPrivate ? viewModel.user.profilePicUrl : "", size: 80)
+            ProfilePicView(publicKey: viewModel.user.publicKey, username:showPrivate ? viewModel.user.name : "Anonymous", profilePicUrl:showPrivate ? viewModel.user.profilePicUrl : "", size: 80)
             VStack(alignment: .leading) {
                 Text(showPrivate ? viewModel.user.name : "Anonymous")
                     .font(.title3)
@@ -47,8 +47,8 @@ struct WalletHeaderView: View {
                 let generator = UINotificationFeedbackGenerator()
                 generator.notificationOccurred(.success)
             } label: {
-                Image(systemName: "doc.on.clipboard")
-                    .font(.headline)
+                Image(systemName: "square.and.arrow.up")
+                    .font(.system(size: 20))
             }
                 .foregroundColor(appColor)
             
@@ -57,7 +57,8 @@ struct WalletHeaderView: View {
                     settingsButtonSelected.toggle()
                 } label: {
                     Image(systemName: "gearshape")
-                        .font(.headline)
+                        .font(.system(size: 20))
+                        
                 }
                     .foregroundColor(appColor)
             } else {
@@ -65,7 +66,7 @@ struct WalletHeaderView: View {
                     showOptionsConfirmationDialog.toggle()
                 } label: {
                     Image(systemName: viewModel.walletState.imageName)
-                        .font(.headline)
+                        .font(.system(size: 20))
                 }
                 .foregroundColor(appColor)
             }

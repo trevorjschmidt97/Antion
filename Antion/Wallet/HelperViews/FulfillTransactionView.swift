@@ -221,7 +221,8 @@ struct FulfillTransactionView: View {
                     .font(.system(.footnote , design: .monospaced))
             }
             Spacer()
-            ProfilePicView(username: appViewModel.user.name,
+            ProfilePicView(publicKey: appViewModel.publicKey,
+                           username: appViewModel.user.name,
                            profilePicUrl: appViewModel.user.profilePicUrl,
                            size: 55)
         }
@@ -239,7 +240,7 @@ struct FulfillTransactionView: View {
                     .font(.system(.footnote , design: .monospaced))
             }
             Spacer()
-            ProfilePicView(username: "Anonymous",
+            ProfilePicView(publicKey: incomingTransaction.toPublicKey, username: "Anonymous",
                            profilePicUrl: "",
                            size: 55)
         }

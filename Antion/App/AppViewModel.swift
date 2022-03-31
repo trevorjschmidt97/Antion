@@ -9,6 +9,10 @@ import Foundation
 import SwiftUI
 import AlertToast
 
+public func printError(file: String = #file, function: String = #function, line: Int = #line ) {
+    print("Error in file: \n\t\(file)\nfunction: \n\t\(function), line: \(line)")
+}
+
 class AppViewModel: ObservableObject {
     private init() { }
     static let shared = AppViewModel()
@@ -139,7 +143,6 @@ class AppViewModel: ObservableObject {
     
     func postPendingTransaction(transaction: Transaction) {
         FirebaseDatabaseService.shared.addPendingTransaction(transaction: transaction)
-        blockChain.pendingTransactions.append(transaction)
     }
     
     // MARK: Blockchain Mining

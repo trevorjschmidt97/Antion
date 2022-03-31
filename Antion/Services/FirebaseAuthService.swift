@@ -14,23 +14,30 @@ class FirebaseAuthService {
     
     private let auth = FirebaseAuth.Auth.auth()
     
-    private var verificationId: String?
+//    var verificationID = UserDefaults.standard.string(forKey: "authVerificationID")
     
-    func startAuth(phoneNumber: String, completion: @escaping (Bool) -> Void) {
-        PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber, uiDelegate: nil) { [weak self] verificationId, error in
-            guard let verificationId = verificationId, error == nil else {
-                completion(false)
-                print("error", error?.localizedDescription ?? "")
+    private enum FirebaseAuthError: Error {
+        case noVerificationId
+    }
+    
+    func startAuth(phoneNumber: String, completion: @escaping (Result<Void,Error>) -> Void) {
+        PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber, uiDelegate: nil) { verificationID, error in
+            if let error = error {
+                completion(.failure(error))
                 return
             }
-            self?.verificationId = verificationId
-            completion(true)
+            guard let verificationID = verificationID else {
+                completion(.failure(FirebaseAuthError.noVerificationId))
+                return
+            }
+            UserDefaults.standard.set(verificationID, forKey: "authVerificationID")
+            completion(.success(()))
             return
         }
     }
     
     func verifyCode(smsCode: String, completion: @escaping (Bool) -> Void) {
-        guard let verificationId = verificationId else {
+        guard let verificationId = UserDefaults.standard.string(forKey: "authVerificationID") else {
             completion(false)
             return
         }
