@@ -133,8 +133,6 @@ struct PrettyTransactionView: View {
         HStack {
             VStack {
                 ProfilePicView(publicKey: transaction.fromPublicKey,
-                               username: fromName,
-                               profilePicUrl: fromProfilePicUrl,
                                size: 50)
                     .padding(.vertical)
                 Spacer()

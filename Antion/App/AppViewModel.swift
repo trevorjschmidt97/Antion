@@ -145,6 +145,39 @@ class AppViewModel: ObservableObject {
         FirebaseDatabaseService.shared.addPendingTransaction(transaction: transaction)
     }
     
+    func name(for publicKey: String) -> String? {
+        // If it's yourself
+        if publicKey == user.publicKey {
+            return user.name
+        }
+        // If it's a friend
+        if let friend = user.friendsMap[publicKey] {
+            return friend.name
+        }
+        // If they have requested to be your friend
+        if let otherRequest = user.otherRequestedFriendsMap[publicKey] {
+            return otherRequest.name
+        }
+        
+        return nil
+    }
+    func profilePicUrl(for publicKey: String) -> String? {
+        // If it's yourself
+        if publicKey == user.publicKey {
+            return user.profilePicUrl
+        }
+        // If it's a friend
+        if let friend = user.friendsMap[publicKey] {
+            return friend.profilePicUrl
+        }
+        // If they have requested to be your friend
+        if let otherRequest = user.otherRequestedFriendsMap[publicKey] {
+            return otherRequest.profilePicUrl
+        }
+        
+        return nil
+    }
+    
     // MARK: Blockchain Mining
     enum CurrentWork {
         case gatheringTransactions

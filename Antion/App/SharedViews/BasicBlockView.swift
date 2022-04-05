@@ -47,11 +47,11 @@ struct BasicBlockView: View {
             HStack {
                 Text("TimeStamp:")
                 Spacer()
-                Text("\(block.timeStamp)")
+                Text("\(block.timeStamp.longStringToDate().timeAgoDisplay())")
             }
             Divider()
 
-            previousHash()
+//            previousHash()
             
             minerView()
 

@@ -16,7 +16,6 @@ struct ContentView: View {
             ZStack {
                 TabView {
                     
-                    
                     NavigationView {
                         TransactionsView()
                     }
@@ -58,7 +57,6 @@ struct ContentView: View {
                                 Image(systemName: "wallet.pass")
                             }
                         }
-//                        .badge(4)
                         .badge(appViewModel.user.numTabBadge)
                 }
                 

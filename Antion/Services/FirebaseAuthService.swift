@@ -14,14 +14,12 @@ class FirebaseAuthService {
     
     private let auth = FirebaseAuth.Auth.auth()
     
-//    var verificationID = UserDefaults.standard.string(forKey: "authVerificationID")
-    
     private enum FirebaseAuthError: Error {
         case noVerificationId
     }
     
-    func startAuth(phoneNumber: String, completion: @escaping (Result<Void,Error>) -> Void) {
-        PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber, uiDelegate: nil) { verificationID, error in
+    func startAuth(phoneNumber: String, completion: @escaping (Result<String,Error>) -> Void) {
+        PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber, uiDelegate: nil) { (verificationID, error) in
             if let error = error {
                 completion(.failure(error))
                 return
@@ -31,7 +29,7 @@ class FirebaseAuthService {
                 return
             }
             UserDefaults.standard.set(verificationID, forKey: "authVerificationID")
-            completion(.success(()))
+            completion(.success(verificationID))
             return
         }
     }

@@ -24,7 +24,7 @@ struct WalletHeaderView: View {
     
     var body: some View {
         HStack {
-            ProfilePicView(publicKey: viewModel.user.publicKey, username:showPrivate ? viewModel.user.name : "Anonymous", profilePicUrl:showPrivate ? viewModel.user.profilePicUrl : "", size: 80)
+            ProfilePicView(publicKey: viewModel.user.publicKey, size: 80)
             VStack(alignment: .leading) {
                 Text(showPrivate ? viewModel.user.name : "Anonymous")
                     .font(.title3)

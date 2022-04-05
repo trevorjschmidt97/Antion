@@ -44,6 +44,8 @@ class WalletViewModel: ObservableObject {
             }
         }
     }
+    
+    // MARK: User Intent Functions
 
     // Signed in user is self, shown friend is other
     func sendFriendRequest() {

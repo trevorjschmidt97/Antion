@@ -78,8 +78,7 @@ struct FullTransactionView: View {
                     .font(.system(.footnote , design: .monospaced))
             }
             Spacer()
-            ProfilePicView(publicKey: transaction.fromPublicKey, username: name(forPublicKey: transaction.fromPublicKey),
-                           profilePicUrl: profilePicUrl(forPublicKey: transaction.fromPublicKey),
+            ProfilePicView(publicKey: transaction.fromPublicKey,
                            size: 55)
         }
         .padding(.horizontal)
@@ -99,9 +98,7 @@ struct FullTransactionView: View {
                     .font(.system(.footnote , design: .monospaced))
             }
             Spacer()
-            ProfilePicView(publicKey: transaction.toPublicKey, username: name(forPublicKey: transaction.toPublicKey),
-                           profilePicUrl: profilePicUrl(forPublicKey: transaction.toPublicKey),
-                           size: 55)
+            ProfilePicView(publicKey: transaction.toPublicKey, size: 55)
         }
         .padding(.horizontal)
         Divider()

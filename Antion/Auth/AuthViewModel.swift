@@ -58,7 +58,8 @@ class AuthViewModel: ObservableObject {
             guard let self = self else { return }
             DispatchQueue.main.async {
                 switch result {
-                case .success():
+                case .success(let verificationId):
+                    print("VerificationID from FirebaseAuth:\n", verificationId)
                     self.showPhoneVerificationScreen.toggle()
                 case .failure(let error):
                     self.errorSendingPhoneAuthCodeMessage = error.localizedDescription

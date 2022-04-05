@@ -10,11 +10,7 @@ import SwiftUI
 struct WalletPickerView: View {
     
     var walletState: WalletState
-    @Binding var pageSelection: WalletView.PageSelection {
-        willSet {
-            print("Hello")
-        }
-    }
+    @Binding var pageSelection: WalletView.PageSelection
     @Binding var movingForward: Bool
     var numFriends: Int
     var friendsString: String { "\(numFriends) Friend\(numFriends != 1 ? "s" : "")" }

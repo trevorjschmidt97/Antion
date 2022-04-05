@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import AlertToast
 
 @main
 struct AntionApp: App {
@@ -37,34 +36,8 @@ struct AntionApp: App {
                 .tint(AppViewModel.shared.accentColor)
                 .accentColor(AppViewModel.shared.accentColor)
                 // Alerts
-                    // Success
-                .toast(isPresenting: $appViewModel.successShown,
-                       duration: 1.5,
-                       tapToDismiss: true,
-                       offsetY: 0.0,
-                       alert: {
-                            AlertToast(displayMode: appViewModel.successDisplayMode,
-                                       type: .complete(.green),
-                                       title: appViewModel.successTitle,
-                                       subTitle: appViewModel.successMessage,
-                                       style: nil)
-                        },
-                       onTap: nil,
-                       completion: nil)
-                    // Failure
-                .toast(isPresenting: $appViewModel.failureShown,
-                       duration: 1.5,
-                       tapToDismiss: true,
-                       offsetY: 0.0,
-                       alert: {
-                            AlertToast(displayMode: appViewModel.failureDisplayMode,
-                                       type: .error(.red),
-                                       title: appViewModel.failureTitle,
-                                       subTitle: appViewModel.failureMessage,
-                                       style: nil)
-                        },
-                       onTap: nil,
-                       completion: nil)
+                .addAlert(alertShown: $appViewModel.successShown, success: true, title: appViewModel.successTitle, subTitle: appViewModel.successMessage, tapToDismiss: true, displayMode: .bannerSlide)
+                .addAlert(alertShown: $appViewModel.failureShown, success: false, title: appViewModel.failureTitle, subTitle: appViewModel.failureMessage, tapToDismiss: true, displayMode: .alert)
             
         }
     }
