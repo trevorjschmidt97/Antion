@@ -11,22 +11,19 @@ import CachedAsyncImage
 struct ProfilePicView: View {
     
     var publicKey: String
-    
-    var username: String
-    var profilePicUrl: String
     var size: Double = 90
     
-    var profilePicUrll: String {
-        if let user = AppViewModel.shared.user.userMap[publicKey] {
-            return user.profilePicUrl
-        }
-        return ""
+    var username: String? {
+        AppViewModel.shared.name(for: publicKey)
+    }
+    var profilePicUrll: String? {
+        AppViewModel.shared.profilePicUrl(for: publicKey)
     }
     
     var body: some View {
         Group {
-            if profilePicUrl != "" {
-                CachedAsyncImage(url: URL(string: profilePicUrl)) { image in
+            if let profilePicUrll = profilePicUrll {
+                CachedAsyncImage(url: URL(string: profilePicUrll)) { image in
                     image
                         .resizable()
                         .scaledToFill()
@@ -40,17 +37,29 @@ struct ProfilePicView: View {
                         .overlay(Circle().stroke(.secondary, lineWidth: 2))
                 }
             } else {
+//                Image(systemName: "person.crop.circle")
+//                    .font(.system(size: size))
+//                    .frame(width: size, height: size)
+//                    .clipShape(Circle())
+//                    .overlay(Circle().stroke(.secondary, lineWidth: 2))
                 ZStack {
                     Circle()
                         .fill(.gray)
                         .opacity(50)
                         .overlay(Circle().stroke(.secondary, lineWidth: 2))
                         .frame(width: size, height: size)
-                    
-                    Text("\(String(username == "Anonymous" ? "?" : username == "Block Reward" ? "A" : username.first ?? Character("?")))")
-                        .font(.title)
-                        .foregroundColor(.white)
-                        .frame(width: size, height: size)
+
+                    if let username = username {
+                        Text("\(String(username == "Anonymous" ? "?" : username == "Block Reward" ? "A" : username.first ?? Character("?")))")
+                            .font(.title)
+                            .foregroundColor(.white)
+                            .frame(width: size, height: size)
+                    } else {
+                        Text("A")
+                            .font(.title)
+                            .foregroundColor(.white)
+                            .frame(width: size, height: size)
+                    }
                 }
             }
         }

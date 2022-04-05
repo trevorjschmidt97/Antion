@@ -13,13 +13,18 @@ struct FullBlockView: View {
     @State private var miner: Friend?
     @State private var previousBlock: Block?
     
+    @State private var showFullTime = true
+    
     @ViewBuilder
     func timeStamp() -> some View {
         HStack {
             Text("TimeStamp:")
             Spacer()
-            Text("\(block.timeStamp)")
+            Text("\(showFullTime ? block.timeStamp : block.timeStamp.longStringToDate().timeAgoDisplay())")
                 .font(.system(.caption, design: .monospaced))
+                .onTapGesture {
+                    showFullTime.toggle()
+                }
         }
         .padding(.top)
         .padding(.horizontal)

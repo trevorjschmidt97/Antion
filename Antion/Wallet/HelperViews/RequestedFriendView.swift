@@ -16,7 +16,7 @@ struct RequestedFriendView: View {
     
     var body: some View {
         HStack {
-            ProfilePicView(publicKey: requestedFriend.friend.publicKey, username: requestedFriend.requestState == .fromOther ? requestedFriend.friend.name : "Anonymous", profilePicUrl: requestedFriend.requestState == .fromOther ? requestedFriend.friend.profilePicUrl : "", size: 50)
+            ProfilePicView(publicKey: requestedFriend.friend.publicKey, size: 50)
             VStack {
                 HStack {
                     VStack(alignment: .leading) {

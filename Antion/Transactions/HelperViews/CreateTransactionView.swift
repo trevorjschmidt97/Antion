@@ -367,9 +367,7 @@ struct CreateTransactionView: View {
                     .font(.system(.footnote , design: .monospaced))
             }
             Spacer()
-            ProfilePicView(publicKey: appViewModel.publicKey, username: appViewModel.user.name,
-                           profilePicUrl: appViewModel.user.profilePicUrl,
-                           size: 55)
+            ProfilePicView(publicKey: appViewModel.publicKey, size: 55)
         }
     }
     
@@ -385,9 +383,7 @@ struct CreateTransactionView: View {
                     .font(.system(.footnote , design: .monospaced))
             }
             Spacer()
-            ProfilePicView(publicKey: otherUser.publicKey, username: otherUser.name,
-                           profilePicUrl: otherUser.profilePicUrl,
-                           size: 55)
+            ProfilePicView(publicKey: otherUser.publicKey, size: 55)
         }
     }
     enum TransactionType {

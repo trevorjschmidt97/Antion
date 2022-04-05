@@ -57,16 +57,16 @@ struct TransactionsView: View {
                 }
                     .padding(.bottom, 80)
             }
-                .addSwipeGesture {
-                    // left to right
-                    if transactionsSelection.canPrevious() {
-                        transactionsSelection = transactionsSelection.previous()
-                    }
-                } rightToLeft: {
-                    if transactionsSelection.canNext() {
-                        transactionsSelection = transactionsSelection.next()
-                    }
-                }
+//                .addSwipeGesture {
+//                    // left to right
+//                    if transactionsSelection.canPrevious() {
+//                        transactionsSelection = transactionsSelection.previous()
+//                    }
+//                } rightToLeft: {
+//                    if transactionsSelection.canNext() {
+//                        transactionsSelection = transactionsSelection.next()
+//                    }
+//                }
             
             
               
