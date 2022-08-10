@@ -50,12 +50,12 @@ struct ProfilePicView: View {
                         .frame(width: size, height: size)
 
                     if let username = username {
-                        Text("\(String(username == "Anonymous" ? "?" : username == "Block Reward" ? "A" : username.first ?? Character("?")))")
+                        Text("\(String(username == "Anonymous" ? "👽" : username == "Block Reward" ? "A" : username.first ?? Character("?")))")
                             .font(.title)
                             .foregroundColor(.white)
                             .frame(width: size, height: size)
                     } else {
-                        Text("A")
+                        Text("💰")
                             .font(.title)
                             .foregroundColor(.white)
                             .frame(width: size, height: size)

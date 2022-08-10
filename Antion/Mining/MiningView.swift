@@ -45,108 +45,10 @@ struct MiningView: View {
                     .font(.title)
                     .padding(.bottom)
                 } else {
-                    VStack(alignment: .leading) {
-                        HStack {
-                            if appViewModel.currentWork == .gatheringTransactions {
-                                ZStack {
-                                    Image(systemName: "circle.fill")
-                                        .foregroundColor(.gray)
-                                        .font(.title)
-                                    ProgressView()
-                                        .tint(.white)
-                                }
-                            } else {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .font(.title)
-                                    .foregroundColor(.green)
-                            }
-                            Text("Gathering pending transactions")
-                        }
-                            .padding(.bottom)
-                        HStack {
-                            if appViewModel.currentWork == .gatheringTransactions {
-                                Image(systemName: "ellipsis.circle.fill")
-                                    .font(.title)
-                                    .foregroundColor(.gray)
-                            } else if appViewModel.currentWork == .verifyingTransactions {
-                                ZStack {
-                                    Image(systemName: "circle.fill")
-                                        .foregroundColor(.gray)
-                                        .font(.title)
-                                    ProgressView()
-                                        .tint(.white)
-                                }
-                            } else {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .font(.title)
-                                    .foregroundColor(.green)
-                            }
-                            Text("Verifying transactions")
-                        }
-                        .padding(.bottom)
-                        HStack {
-                            if appViewModel.currentWork == .gatheringTransactions || appViewModel.currentWork == .verifyingTransactions {
-                                Image(systemName: "ellipsis.circle.fill")
-                                    .font(.title)
-                                    .foregroundColor(.gray)
-                            } else if appViewModel.currentWork == .creatingBlock {
-                                ZStack {
-                                    Image(systemName: "circle.fill")
-                                        .foregroundColor(.gray)
-                                        .font(.title)
-                                    ProgressView()
-                                        .tint(.white)
-                                }
-                            } else {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .font(.title)
-                                    .foregroundColor(.green)
-                            }
-                            Text("Creating Block")
-                        }
-                        .padding(.bottom)
-                        HStack {
-                            if appViewModel.currentWork == .gatheringTransactions || appViewModel.currentWork == .verifyingTransactions || appViewModel.currentWork == .creatingBlock {
-                                Image(systemName: "ellipsis.circle.fill")
-                                    .font(.title)
-                                    .foregroundColor(.gray)
-                            } else if appViewModel.currentWork == .miningBlock {
-                                ZStack {
-                                    Image(systemName: "circle.fill")
-                                        .foregroundColor(.gray)
-                                        .font(.title)
-                                    ProgressView()
-                                        .tint(.white)
-                                }
-                            } else {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .font(.title)
-                                    .foregroundColor(.green)
-                            }
-                            Text("Mining Block")
-                        }
-                        .padding(.bottom)
-                        HStack {
-                            if appViewModel.currentWork == .gatheringTransactions || appViewModel.currentWork == .verifyingTransactions || appViewModel.currentWork == .creatingBlock || appViewModel.currentWork == .miningBlock{
-                                Image(systemName: "ellipsis.circle.fill")
-                                    .font(.title)
-                                    .foregroundColor(.gray)
-                            } else if appViewModel.currentWork == .publishingBlock {
-                                ZStack {
-                                    Image(systemName: "circle.fill")
-                                        .foregroundColor(.gray)
-                                        .font(.title)
-                                    ProgressView()
-                                        .tint(.white)
-                                }
-                            } else {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .font(.title)
-                                    .foregroundColor(.green)
-                            }
-                            Text("Publishing Block")
-                        }
-                    }
+                    BasicBlockView(block: AppViewModel.shared.newBlock)
+                        .clipShape(RoundedRectangle(cornerRadius: 10.0))
+                        .overlay(RoundedRectangle(cornerRadius: 5.0).stroke(.primary, lineWidth: 2))
+                        .padding(.horizontal)
                     
                     Button("Stop Mining?") {
                         appViewModel.isMining = false
@@ -213,26 +115,28 @@ struct MiningView: View {
                 
             }
             
-            HStack {
-                Text("Pending Transactions")
-                    .font(.title3)
-                    .fontWeight(.bold)
-                Spacer()
-                Image(systemName: isShowingPendingTransactions ? "chevron.down" : "chevron.up")
-            }
-            .font(.headline)
-            .padding(.horizontal)
-            .onTapGesture {
-                withAnimation {
-                    isShowingPendingTransactions.toggle()
+            if !appViewModel.blockChain.pendingTransactions.isEmpty {
+                HStack {
+                    Text("Pending Transactions")
+                        .font(.title3)
+                        .fontWeight(.bold)
+                    Spacer()
+                    Image(systemName: isShowingPendingTransactions ? "chevron.down" : "chevron.up")
                 }
-            }
-            
-            if isShowingPendingTransactions {
-                ForEach(appViewModel.blockChain.pendingTransactions.sorted{ $0.timeStamp > $1.timeStamp }) { pendingTransaction in
-                    PrettyTransactionView(transaction: pendingTransaction, transactionType: .pending)
-                        .padding(.horizontal)
-                    Divider()
+                .font(.headline)
+                .padding(.horizontal)
+                .onTapGesture {
+                    withAnimation {
+                        isShowingPendingTransactions.toggle()
+                    }
+                }
+                
+                if isShowingPendingTransactions {
+                    ForEach(appViewModel.blockChain.pendingTransactions.sorted{ $0.timeStamp > $1.timeStamp }) { pendingTransaction in
+                        PrettyTransactionView(transaction: pendingTransaction, transactionType: .pending)
+                            .padding(.horizontal)
+                        Divider()
+                    }
                 }
             }
             
