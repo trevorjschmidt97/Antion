@@ -14,7 +14,6 @@
 		69127261277A9EDB0086F60D /* FullTransactionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69127260277A9EDB0086F60D /* FullTransactionView.swift */; };
 		69127264277AF43E0086F60D /* ConfirmationDialogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69127263277AF43E0086F60D /* ConfirmationDialogView.swift */; };
 		69127268277AF6910086F60D /* ChangeAppColorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69127267277AF6910086F60D /* ChangeAppColorView.swift */; };
-		6912726B277AFC030086F60D /* PendingTransactionsSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6912726A277AFC030086F60D /* PendingTransactionsSectionView.swift */; };
 		691DCB1A277CEA4B005A7820 /* OtherUserRecepientView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 691DCB19277CEA4B005A7820 /* OtherUserRecepientView.swift */; };
 		691DCB1C277D667E005A7820 /* String+Slash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 691DCB1B277D667E005A7820 /* String+Slash.swift */; };
 		692D4BF027A09A8600FA7987 /* UserTransactionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 692D4BEF27A09A8600FA7987 /* UserTransactionsView.swift */; };
@@ -87,7 +86,6 @@
 		69127260277A9EDB0086F60D /* FullTransactionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullTransactionView.swift; sourceTree = "<group>"; };
 		69127263277AF43E0086F60D /* ConfirmationDialogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmationDialogView.swift; sourceTree = "<group>"; };
 		69127267277AF6910086F60D /* ChangeAppColorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeAppColorView.swift; sourceTree = "<group>"; };
-		6912726A277AFC030086F60D /* PendingTransactionsSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTransactionsSectionView.swift; sourceTree = "<group>"; };
 		691DCB19277CEA4B005A7820 /* OtherUserRecepientView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OtherUserRecepientView.swift; sourceTree = "<group>"; };
 		691DCB1B277D667E005A7820 /* String+Slash.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Slash.swift"; sourceTree = "<group>"; };
 		692D4BEF27A09A8600FA7987 /* UserTransactionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTransactionsView.swift; sourceTree = "<group>"; };
@@ -202,7 +200,6 @@
 			isa = PBXGroup;
 			children = (
 				69D1A7862778387A00616FE8 /* Arrow.swift */,
-				6912726A277AFC030086F60D /* PendingTransactionsSectionView.swift */,
 			);
 			path = HelperViews;
 			sourceTree = "<group>";
@@ -589,7 +586,6 @@
 				69DA3C9127D81A13000424AB /* SearchViewModel.swift in Sources */,
 				69CD51F6276E94F900CC1744 /* CryptoService.swift in Sources */,
 				69B403F727DAD7D60025889B /* SearchUser.swift in Sources */,
-				6912726B277AFC030086F60D /* PendingTransactionsSectionView.swift in Sources */,
 				69A9258C279882EB006056FB /* Friend.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

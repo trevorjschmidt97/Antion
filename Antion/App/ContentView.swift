@@ -17,6 +17,19 @@ struct ContentView: View {
                 TabView {
                     
                     NavigationView {
+                        WalletView(publicKey: appViewModel.publicKey,
+                                   name: appViewModel.name,
+                                   profilePicUrl: appViewModel.profilePicUrl)
+                    }
+                        .tabItem {
+                            VStack {
+                                Text("Wallet")
+                                Image(systemName: "wallet.pass")
+                            }
+                        }
+                        .badge(appViewModel.user.numTabBadge)
+                    
+                    NavigationView {
                         TransactionsView()
                     }
                         .tabItem {
@@ -46,18 +59,6 @@ struct ContentView: View {
                             }
                         }
                     
-                    NavigationView {
-                        WalletView(publicKey: appViewModel.publicKey,
-                                   name: appViewModel.name,
-                                   profilePicUrl: appViewModel.profilePicUrl)
-                    }
-                        .tabItem {
-                            VStack {
-                                Text("Wallet")
-                                Image(systemName: "wallet.pass")
-                            }
-                        }
-                        .badge(appViewModel.user.numTabBadge)
                 }
                 
                 if appViewModel.loadingUserInfo ||

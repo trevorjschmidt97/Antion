@@ -179,16 +179,8 @@ class AppViewModel: ObservableObject {
     }
     
     // MARK: Blockchain Mining
-    enum CurrentWork {
-        case gatheringTransactions
-        case verifyingTransactions
-        case creatingBlock
-        case miningBlock
-        case publishingBlock
-    }
-    
     @Published var isMining = false
-    @Published var currentWork: CurrentWork = .gatheringTransactions
+    @Published var newBlock: Block = exampleBlock
     func startMining() {
         print("Starting Mining")
         var index = 0
@@ -225,7 +217,7 @@ class AppViewModel: ObservableObject {
         // Get pending transactions
         var pendingTransactionsList = Array(blockChain.pendingTransactions.sorted{ $0.timeStamp < $1.timeStamp }.prefix(4095))
         
-        currentWork = .verifyingTransactions
+        print("Verifying Pending Transactions")
         var userBalances: [String:Int] = [:]
         for (i, transaction) in pendingTransactionsList.enumerated() {
             // If rewarded transaction or free transaction
@@ -259,11 +251,11 @@ class AppViewModel: ObservableObject {
             userBalances[transaction.toPublicKey] = userBalances[transaction.toPublicKey]! + transaction.amount
         }
         
-        currentWork = .creatingBlock
         // Add reward Transaction
         let rewardTransaction = Transaction(fromPublicKey: "", fromPrivateKey: "", toPublicKey: user.publicKey, amount: miningReward, note: "Mining Reward", timeStamp: Date().toLongString())
 
-        var newBlock = Block(index: index,
+        print("Creating New Block")
+        newBlock = Block(index: index,
                              timeStamp: Date.now.toLongString(),
                              previousHash: previousHash,
                              minerPublicKey: user.publicKey,
@@ -271,27 +263,26 @@ class AppViewModel: ObservableObject {
                              nonce: 0,
                              hash: "",
                              transactions: pendingTransactionsList)
-        
+                
         newBlock.transactions.append(rewardTransaction)
         
-        currentWork = .miningBlock
         // Mine the newBlock
         isMining = true
         
-        var timer: DispatchSourceTimer? = nil
-        let queue = DispatchQueue(label: "miningTimer")
-        timer = DispatchSource.makeTimerSource(queue: queue)
-        timer?.schedule(deadline: .now(), repeating: .milliseconds(10))
-        
-        timer?.setEventHandler { [weak self] in
+        Timer.scheduledTimer(withTimeInterval: 0.001, repeats: true) { timer in
             guard let self = self else { return }
-            if newBlock.hash.prefix(difficulty) != String(repeating: "0", count: difficulty) && self.isMining {
-                newBlock.nonce += 1
-                newBlock.hash = CryptoService.hashBlock(newBlock)
+            if self.newBlock.nonce % 100 == 0 {
+                print("Mining Nonce: \(self.newBlock.nonce)")
+            }
+            if self.newBlock.hash.prefix(difficulty) != String(repeating: "0", count: difficulty) && self.isMining {
+                DispatchQueue.main.async {
+                    self.newBlock.nonce += 1
+                    self.newBlock.hash = CryptoService.hashBlock(self.newBlock)
+                }
             } else if self.isMining {
                 withAnimation {
-                    FirebaseDatabaseService.shared.addBlockToChain(block: newBlock)
-                    for transaction in newBlock.transactions {
+                    FirebaseDatabaseService.shared.addBlockToChain(block: self.newBlock)
+                    for transaction in self.newBlock.transactions {
                         FirebaseDatabaseService.shared.removePendingTransaction(transaction)
                     }
                     self.blockChain.pendingTransactions.removeAll()
@@ -299,13 +290,41 @@ class AppViewModel: ObservableObject {
                 DispatchQueue.main.async {
                     self.isMining = false
                 }
-                timer?.cancel()
-                timer = nil
+                timer.invalidate()
             }
         }
-        
-        
-        timer?.resume()
+//        var timer: DispatchSourceTimer? = nil
+//        let queue = DispatchQueue(label: "miningTimer")
+//        timer = DispatchSource.makeTimerSource(queue: queue)
+//        timer?.schedule(deadline: .now(), repeating: .milliseconds(10))
+//
+//        print("Starting Mining")
+//        timer?.setEventHandler { [weak self] in
+//            guard let self = self else { return }
+//            if self.newBlock.nonce % 100 == 0 {
+//                print("Mining Nonce: \(self.newBlock.nonce)")
+//            }
+//            if self.newBlock.hash.prefix(difficulty) != String(repeating: "0", count: difficulty) && self.isMining {
+//                self.newBlock.nonce += 1
+//                self.newBlock.hash = CryptoService.hashBlock(self.newBlock)
+//            } else if self.isMining {
+//                withAnimation {
+//                    FirebaseDatabaseService.shared.addBlockToChain(block: self.newBlock)
+//                    for transaction in self.newBlock.transactions {
+//                        FirebaseDatabaseService.shared.removePendingTransaction(transaction)
+//                    }
+//                    self.blockChain.pendingTransactions.removeAll()
+//                }
+//                DispatchQueue.main.async {
+//                    self.isMining = false
+//                }
+//                timer?.cancel()
+//                timer = nil
+//            }
+//        }
+//
+//
+//        timer?.resume()
     }
     
     // MARK: Color
