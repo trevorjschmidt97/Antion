@@ -270,7 +270,7 @@ class AppViewModel: ObservableObject {
         isMining = true
         
         Timer.scheduledTimer(withTimeInterval: 0.001, repeats: true) { timer in
-            guard let self = self else { return }
+//            guard let self = self else { return }
             if self.newBlock.nonce % 100 == 0 {
                 print("Mining Nonce: \(self.newBlock.nonce)")
             }
